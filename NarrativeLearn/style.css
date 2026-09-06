@@ -1,0 +1,594 @@
+/* ============================================================
+   narrative-learn.css
+   ------------------------------------------------------------
+   Warna, huruf, ukuran, dan geometri peta TIDAK lagi di sini.
+   Semuanya pindah ke shared/tokens.css supaya satu perubahan
+   berlaku untuk seluruh proyek. File ini hanya berisi tata
+   letak khusus halaman ini.
+   ============================================================ */
+
+/* ============================================================
+   RESET SECUKUPNYA
+   ============================================================ */
+*,*::before,*::after{ box-sizing:border-box; }
+
+html,body{
+  margin:0;
+  height:100%;
+  overflow:hidden;                 /* tidak ada gulir vertikal */
+  background:var(--sky-1);
+  font-family:var(--font);
+  color:var(--paper);
+  -webkit-font-smoothing:antialiased;
+  -webkit-tap-highlight-color:transparent;
+  overscroll-behavior:none;
+}
+
+button{ font:inherit; color:inherit; border:0; background:none; cursor:pointer; }
+a{ color:inherit; text-decoration:none; }
+
+.skip-link{
+  position:fixed; left:12px; top:-100px; z-index:99;
+  padding:10px 14px; border-radius:var(--r-sm);
+  background:var(--paper); color:var(--ink); font-size:14px; font-weight:600;
+  transition:top .2s;
+}
+.skip-link:focus{ top:calc(12px + var(--safe-t)); }
+
+:focus-visible{ outline:3px solid #fff; outline-offset:3px; border-radius:8px; }
+
+/* ============================================================
+   PANGGUNG : viewport, world, dan 3 lapis parallax
+   ============================================================ */
+.viewport{
+  position:fixed; inset:0;
+  height:100vh; height:100dvh;
+  overflow-x:auto; overflow-y:hidden;
+  overscroll-behavior-x:contain;
+  -webkit-overflow-scrolling:touch;
+  scroll-snap-type:x mandatory;
+  scrollbar-width:none;
+}
+.viewport::-webkit-scrollbar{ display:none; }
+
+.world{
+  position:relative;
+  width:var(--rail-w);
+  height:100%;
+  /* Lapis depan sengaja dibuat lebih lebar dari rel supaya tidak
+     menyisakan celah saat digeser. Tanpa clip, kelebihan lebar itu
+     ikut menambah panjang gulir dan muncul ruang kosong di ujung. */
+  overflow:clip;
+}
+
+/* Peramban tanpa dukungan overflow:clip -> lapis depan disamakan
+   dengan lebar rel (sedikit kehilangan awan di ujung, tapi aman). */
+@supports not (overflow: clip){
+  .layer--fore{ width:var(--rail-w); }
+}
+
+.layer{
+  position:absolute; top:0; left:0;
+  height:100%;
+  pointer-events:none;             /* gulir & ketuk lewat begitu saja */
+}
+.layer--sky { width:var(--rail-w); z-index:1; }
+.layer--map { width:var(--rail-w); z-index:2; }
+.layer--fore{ width:calc(var(--rail-w) * 1.4); z-index:3; }
+
+/* Hanya lapis yang benar-benar bergeser yang diberi will-change */
+.layer--sky, .layer--fore{ will-change:transform; }
+
+.art{ position:absolute; }
+.deco{ display:block; width:100%; height:100%; }
+
+/* ---------- Lapis langit ---------- */
+.layer--sky{
+  background:
+    linear-gradient(to bottom, rgba(6,18,34,.40) 0%, rgba(6,18,34,0) 62%),
+    linear-gradient(to right,
+      var(--sky-1) 0%,
+      var(--sky-2) 15%,
+      var(--sky-3) 28%,
+      var(--sky-4) 39%,
+      var(--sky-5) 50%,
+      var(--sky-5) 100%);
+}
+.art--sky{
+  left:0; top:0;
+  width:100%;
+  height:calc(100% - var(--band-h) + 18dvh);
+}
+
+/* ---------- Lapis peta (rasio 38:16 dijaga persis) ---------- */
+.art--map{
+  left:calc((var(--rail-w) - var(--map-w)) / 2);
+  bottom:0;
+  width:var(--map-w);
+  height:var(--band-h);
+}
+.map{ display:block; width:100%; height:100%; }
+
+/* ---------- Lapis depan ---------- */
+.art--fore{
+  left:0; bottom:-6dvh;
+  width:100%;
+  height:38dvh;
+}
+
+/* Titik henti scroll-snap: kotak tipis tak terlihat di koordinat peta */
+.snap{
+  position:absolute; top:0; bottom:0;
+  left:var(--sx);
+  width:2px;
+  scroll-snap-align:center;
+  pointer-events:none;
+}
+
+/* ============================================================
+   PENANDA LOKASI DI PETA
+   ============================================================ */
+.pin{
+  position:absolute;
+  left:var(--x); top:var(--y);
+  transform:translate(-50%,-50%);
+  width:44px; height:44px;          /* target sentuh minimum */
+  display:grid; place-items:center;
+  pointer-events:auto;
+  touch-action:pan-x;               /* diseret = tetap menggulir */
+}
+.pin i{
+  position:relative;
+  width:14px; height:14px; border-radius:50%;
+  background:var(--paper);
+  box-shadow:0 0 0 4px rgba(253,251,246,.28), 0 2px 8px rgba(6,20,32,.55);
+  transition:transform .25s ease, box-shadow .25s ease;
+}
+.pin::after{
+  content:""; position:absolute;
+  width:24px; height:24px; border-radius:50%;
+  border:2px solid var(--paper);
+  opacity:0;
+  animation:ping 3s ease-out infinite;
+}
+.pin--lake::after{ animation-delay:1.5s; }
+@keyframes ping{
+  0%  { transform:scale(.55); opacity:.7 }
+  70% { transform:scale(2.4); opacity:0 }
+  100%{ transform:scale(2.4); opacity:0 }
+}
+.pin.is-active i{ transform:scale(1.25); box-shadow:0 0 0 7px rgba(253,251,246,.24), 0 2px 10px rgba(6,20,32,.6); }
+.pin:active i{ transform:scale(.9); }
+
+/* ============================================================
+   PANEL TENGAH (beranda)
+   ============================================================ */
+.beranda{
+  position:absolute;
+  left:var(--x); top:var(--y);
+  transform:translate(-50%,0);
+  width:min(80vw, 420px);
+  text-align:center;
+  pointer-events:none;
+  transition:opacity .35s ease, transform .35s ease;
+}
+.beranda__eyebrow{
+  margin:0 0 8px;
+  font-size:clamp(11px,3vw,13px);
+  letter-spacing:.24em; text-transform:uppercase;
+  opacity:.8;
+  text-shadow:0 1px 10px rgba(6,20,32,.65);
+}
+.beranda__title{
+  margin:0;
+  font-size:clamp(31px,8.8vw,54px);
+  font-weight:800;
+  letter-spacing:-.025em;
+  line-height:1.02;
+  text-shadow:0 2px 26px rgba(6,20,32,.6);
+}
+.beranda__desc{
+  margin:12px 0 0;
+  font-size:clamp(13px,3.6vw,16px);
+  opacity:.88;
+  text-shadow:0 1px 12px rgba(6,20,32,.65);
+}
+
+/* Beranda meredup saat pengguna menepi ke salah satu dunia */
+body[data-stop="0"] .beranda,
+body[data-stop="2"] .beranda{ opacity:0; transform:translate(-50%,-10px); }
+
+/* ============================================================
+   DOCK : kartu tujuan (menempel di layar, tidak ikut tergulir)
+   ============================================================ */
+.dock{
+  position:fixed; z-index:20;
+  left:0; right:0;
+  bottom:calc(76px + var(--safe-b));
+  display:grid;
+  justify-items:center;
+  padding:0 14px;
+  pointer-events:none;
+}
+.dock > *{ grid-area:1 / 1; }
+
+.dcard{
+  width:min(100%, 460px);
+  display:flex; align-items:center; gap:13px;
+  padding:13px 14px;
+  border-radius:var(--r-lg);
+  border:1px solid rgba(253,251,246,.24);
+  -webkit-backdrop-filter:blur(16px) saturate(1.25);
+  backdrop-filter:blur(16px) saturate(1.25);
+  box-shadow:var(--shadow-2);
+  opacity:0; transform:translateY(14px) scale(.97);
+  pointer-events:none;
+  transition:opacity .3s ease, transform .3s cubic-bezier(.22,.9,.28,1);
+}
+.dcard--ocean{ background:linear-gradient(150deg, rgba(43,134,162,.72), rgba(10,53,80,.82)); }
+.dcard--lake { background:linear-gradient(150deg, rgba(143,107,168,.72), rgba(47,35,84,.84)); }
+
+.dcard.is-active{ opacity:1; transform:none; pointer-events:auto; }
+.dcard:active{ transform:scale(.985); }
+
+.dcard__mark{
+  width:44px; height:44px; border-radius:14px; flex:none;
+  box-shadow:inset 0 0 0 1px rgba(253,251,246,.2);
+}
+.dcard--ocean .dcard__mark{ background:linear-gradient(150deg,var(--ocean-300),var(--ocean-900)); }
+.dcard--lake  .dcard__mark{ background:linear-gradient(150deg,var(--lembayung-300),var(--lembayung-900)); }
+
+.dcard__body{ display:flex; flex-direction:column; gap:1px; min-width:0; }
+.dcard__eyebrow{
+  font-size:10.5px; letter-spacing:.18em; text-transform:uppercase; opacity:.75;
+}
+.dcard__title{
+  font-size:clamp(17px,4.8vw,21px); font-weight:750; letter-spacing:-.015em; line-height:1.2;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.dcard__desc{
+  font-size:clamp(11.5px,3.2vw,13px); opacity:.78; line-height:1.35;
+}
+.dcard__go{
+  margin-left:auto; flex:none;
+  width:40px; height:40px; border-radius:50%;
+  display:grid; place-items:center;
+  background:var(--paper); color:var(--ink);
+  box-shadow:var(--shadow-1);
+}
+.ico{ width:21px; height:21px; fill:none; stroke:currentColor; stroke-width:2.2;
+      stroke-linecap:round; stroke-linejoin:round; grid-area:1/1; display:none; }
+.dcard .ico--go{ display:block; }
+
+/* ---------- Status ketujuh platform level 3 ----------
+   Kedua kartu di halaman ini SELALU bisa ditekan — keduanya
+   menuju hub, dan hub tidak pernah terkunci. Yang berurutan
+   adalah permainannya, dan urutan itu ditampilkan di sini
+   sebagai kabar, bukan sebagai pintu tertutup: siswa boleh
+   masuk melihat-lihat, tapi tahu mana yang sudah bisa ia
+   kerjakan. Titik di depan tiap nama yang membedakannya —
+   bukan warna saja — supaya tetap terbaca oleh mata yang sulit
+   membedakan warna. */
+.dcard__stops{
+  display:flex; flex-wrap:wrap; gap:4px 10px;
+  margin-top:5px;
+  font-size:clamp(10.5px,2.9vw,12px); line-height:1.3;
+}
+.dstop{
+  font-weight:600; font-style:normal;
+  display:inline-flex; align-items:center; gap:4px;
+  white-space:nowrap;
+}
+.dstop::before{
+  content:''; width:6px; height:6px; border-radius:50%; flex:none;
+  background:currentColor;
+}
+.dstop.is-selesai { opacity:.95; }
+.dstop.is-selesai::before{ content:'✓'; width:auto; height:auto; border-radius:0;
+  background:none; font-size:11px; line-height:1; font-weight:800; }
+.dstop.is-terbuka { opacity:.95; }
+.dstop.is-terbuka::before{ box-shadow:0 0 0 3px rgba(253,251,246,.22); }
+.dstop.is-terkunci{ opacity:.5; }
+.dstop.is-terkunci::before{ background:none; box-shadow:inset 0 0 0 1.5px currentColor; }
+
+.dcard.is-done .ico--go{ display:none; }
+.dcard.is-done .ico--done{ display:block; }
+.dcard--ocean.is-done .dcard__go{ background:var(--ocean-100); color:var(--ocean-900); }
+.dcard--lake.is-done  .dcard__go{ background:var(--lembayung-100); color:var(--lembayung-900); }
+
+/* Penanda di peta ikut meredup saat dunianya terkunci */
+.pin.is-locked i{
+  background:rgba(253,251,246,.42);
+  box-shadow:0 0 0 3px rgba(253,251,246,.14), 0 2px 6px rgba(6,20,32,.5);
+}
+.pin.is-locked::after{ animation:none; opacity:0; }
+
+.sheet__item.is-locked{ opacity:.55; }
+.sheet__state{ margin-left:auto; flex:none; opacity:.7; }
+.sheet__state .ico{ display:block; width:19px; height:19px; }
+
+/* Pesan singkat saat yang terkunci diketuk */
+.toast{
+  position:fixed; z-index:25;
+  left:50%; transform:translate(-50%, 10px);
+  bottom:calc(150px + var(--safe-b));
+  margin:0; max-width:min(86vw, 420px);
+  padding:11px 17px; border-radius:999px;
+  background:rgba(12,28,42,.92);
+  border:1px solid rgba(253,251,246,.22);
+  -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);
+  font-size:13px; line-height:1.4; text-align:center;
+  opacity:0; pointer-events:none;
+  transition:opacity .25s ease, transform .25s ease;
+}
+.toast.is-on{ opacity:1; transform:translate(-50%, 0); }
+
+/* Petunjuk di posisi tengah */
+.dock__hint{
+  margin:0;
+  align-self:center;
+  display:inline-flex; align-items:center; gap:10px;
+  padding:9px 16px;
+  border-radius:999px;
+  background:rgba(12,28,42,.42);
+  border:1px solid rgba(253,251,246,.22);
+  -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);
+  font-size:clamp(11px,3vw,13px); letter-spacing:.05em;
+  opacity:0; transform:translateY(8px);
+  transition:opacity .3s ease, transform .3s ease;
+}
+.dock__hint.is-active{ opacity:1; transform:none; }
+.arw{ font-size:1.3em; line-height:1; opacity:.6; animation:nudge 2.4s ease-in-out infinite; }
+.arw:last-child{ animation-delay:1.2s; }
+@keyframes nudge{ 0%,100%{ transform:translateX(0); opacity:.45 } 50%{ transform:translateX(-2px); opacity:1 } }
+
+/* ============================================================
+   CHROME : menu & indikator
+   ============================================================ */
+.menu-btn{
+  position:fixed; z-index:21;
+  top:calc(14px + var(--safe-t)); right:14px;
+  display:inline-flex; align-items:center; gap:9px;
+  min-height:44px; padding:0 16px;
+  border-radius:999px;
+  background:rgba(12,28,42,.42);
+  border:1px solid rgba(253,251,246,.24);
+  -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
+  font-size:13px; font-weight:650; letter-spacing:.02em;
+  box-shadow:var(--shadow-1);
+}
+.menu-btn__bars{ display:grid; gap:4px; }
+.menu-btn__bars i{ display:block; width:16px; height:2px; border-radius:2px; background:currentColor; }
+
+.dots{
+  position:fixed; z-index:21;
+  left:50%; transform:translateX(-50%);
+  bottom:calc(16px + var(--safe-b));
+  display:flex; gap:6px;
+  padding:7px 9px;
+  border-radius:999px;
+  background:rgba(12,28,42,.4);
+  border:1px solid rgba(253,251,246,.18);
+  -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);
+}
+.dots__d{ width:32px; height:32px; display:grid; place-items:center; border-radius:50%; }
+.dots__d::before{
+  content:"";
+  width:7px; height:7px; border-radius:99px;
+  background:rgba(253,251,246,.45);
+  transition:width .25s ease, background .25s ease;
+}
+.dots__d.is-on::before{ width:22px; background:var(--paper); }
+
+/* ============================================================
+   PANEL DAFTAR PLATFORM (jalur cadangan tanpa peta)
+   ============================================================ */
+.sheet-backdrop{
+  position:fixed; inset:0; z-index:29;
+  background:rgba(6,16,26,.55);
+  -webkit-backdrop-filter:blur(3px); backdrop-filter:blur(3px);
+  opacity:0; transition:opacity .25s ease;
+}
+.sheet-backdrop.is-on{ opacity:1; }
+
+.sheet{
+  position:fixed; z-index:30;
+  left:0; right:0; bottom:0;
+  padding:10px 16px calc(20px + var(--safe-b));
+  border-radius:26px 26px 0 0;
+  background:rgba(14,30,45,.95);
+  border-top:1px solid rgba(253,251,246,.18);
+  -webkit-backdrop-filter:blur(18px); backdrop-filter:blur(18px);
+  box-shadow:0 -12px 44px rgba(6,20,32,.5);
+  transform:translateY(102%);
+  transition:transform .32s cubic-bezier(.22,.9,.28,1);
+  max-width:520px; margin-inline:auto;
+}
+.sheet.is-on{ transform:translateY(0); }
+
+.sheet__grip{
+  width:42px; height:4px; border-radius:99px;
+  background:rgba(253,251,246,.32);
+  margin:0 auto 14px;
+}
+.sheet__title{
+  margin:0 0 14px;
+  font-size:15px; font-weight:700; text-align:center; opacity:.9;
+}
+.sheet__item{
+  display:flex; align-items:center; gap:13px;
+  padding:14px; margin-bottom:10px;
+  border-radius:var(--r-md);
+  background:rgba(253,251,246,.07);
+  border:1px solid rgba(253,251,246,.14);
+  min-height:64px;
+}
+.sheet__item:active{ background:rgba(253,251,246,.13); }
+.sheet__mark{ width:38px; height:38px; border-radius:12px; flex:none; }
+.sheet__item--ocean .sheet__mark{ background:linear-gradient(150deg,var(--ocean-300),var(--ocean-900)); }
+.sheet__item--lake  .sheet__mark{ background:linear-gradient(150deg,var(--lembayung-100),var(--lembayung-900)); }
+.sheet__item strong{ display:block; font-size:15px; font-weight:700; }
+.sheet__item em{ display:block; font-style:normal; font-size:12px; opacity:.68; margin-top:3px; line-height:1.35; }
+.sheet__go{ margin-left:auto; opacity:.6; font-size:18px; }
+.sheet__close{
+  width:100%; min-height:46px; margin-top:4px;
+  border-radius:var(--r-md);
+  background:rgba(253,251,246,.1);
+  font-size:14px; font-weight:650;
+}
+
+/* ============================================================
+   MODE HEMAT GERAK
+   ============================================================ */
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration:.001ms !important; animation-iteration-count:1 !important;
+     transition-duration:.001ms !important; scroll-behavior:auto !important; }
+  .viewport{ scroll-snap-type:none; }
+}
+
+/* ============================================================
+   LAYAR SANGAT LEBAR : seluruh peta terlihat sekaligus,
+   jadi kedua kartu ditampilkan berdampingan.
+   ============================================================ */
+.no-scroll .dots,
+.no-scroll .dock__hint{ display:none; }
+.no-scroll .dock{
+  display:flex; justify-content:center; gap:14px;
+  bottom:calc(22px + var(--safe-b));
+}
+.no-scroll .dcard{
+  opacity:1 !important; transform:none !important; pointer-events:auto !important;
+  width:min(46%, 400px);
+}
+.no-scroll .beranda{ opacity:1 !important; transform:translate(-50%,0) !important; }
+
+
+/* ============================================================
+   IDENTITAS SISWA
+   ============================================================ */
+.student-chip{
+  position:fixed; z-index:21;
+  top:calc(14px + var(--safe-t)); left:14px;
+  max-width:46vw; min-height:36px; padding:0 14px;
+  display:inline-flex; align-items:center;
+  border-radius:999px;
+  background:rgba(12,28,42,.42);
+  border:1px solid rgba(253,251,246,.24);
+  -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
+  font-size:12.5px; font-weight:650;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  box-shadow:var(--shadow-1);
+}
+.student-chip[hidden]{ display:none; }
+
+.idgate{
+  position:fixed; inset:0; z-index:40;
+  display:grid; place-items:center;
+  padding:20px;
+  background:rgba(6,16,26,.72);
+  -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
+}
+.idgate[hidden]{ display:none; }
+
+.idgate__panel{
+  width:min(100%, 420px);
+  padding:24px 22px calc(18px + var(--safe-b));
+  border-radius:24px;
+  background:rgba(16,34,50,.97);
+  border:1px solid rgba(253,251,246,.2);
+  box-shadow:0 24px 60px rgba(6,20,32,.55);
+  max-height:88dvh; overflow-y:auto;
+}
+.idgate__eyebrow{
+  margin:0 0 6px; font-size:11px; letter-spacing:.2em;
+  text-transform:uppercase; opacity:.7;
+}
+.idgate__title{ margin:0 0 8px; font-size:clamp(22px,6vw,27px); font-weight:800; letter-spacing:-.02em; }
+.idgate__desc{ margin:0 0 20px; font-size:13.5px; line-height:1.5; opacity:.78; }
+
+.idgate__label{
+  display:block; margin:0 0 6px;
+  font-size:11.5px; font-weight:700; letter-spacing:.1em;
+  text-transform:uppercase; opacity:.66;
+}
+.idgate__input{
+  width:100%; min-height:50px; margin-bottom:16px;
+  padding:0 15px;
+  border-radius:var(--r-md);
+  background:rgba(253,251,246,.1);
+  border:1px solid rgba(253,251,246,.22);
+  color:var(--paper);
+  font-family:var(--font); font-size:16px;   /* 16px mencegah iOS ikut memperbesar layar saat mengetik */
+}
+.idgate__input::placeholder{ color:rgba(253,251,246,.38); }
+.idgate__input:focus{ outline:none; border-color:rgba(253,251,246,.6); background:rgba(253,251,246,.15); }
+
+.idgate__btn{
+  width:100%; min-height:52px; margin-top:4px;
+  border-radius:var(--r-md);
+  background:var(--paper); color:var(--ink);
+  font-size:16px; font-weight:750;
+  box-shadow:var(--shadow-1);
+  transition:opacity .2s ease, transform .15s ease;
+}
+.idgate__btn:active:not([disabled]){ transform:scale(.985); }
+.idgate__btn[disabled]{
+  background:rgba(253,251,246,.14); color:rgba(253,251,246,.5);
+  box-shadow:none; cursor:not-allowed;
+}
+.idgate__skip{
+  display:block; width:100%; min-height:44px; margin-top:6px;
+  font-size:13px; font-weight:600; opacity:.6;
+}
+
+/* =========================================================
+   TRANSISI ZOOM MENUJU LEVEL 2
+   ---------------------------------------------------------
+   Menekan sebuah dunia tidak langsung berpindah halaman:
+   peta dibesarkan dulu ke arah penanda dunia itu (titik
+   pusatnya diatur script.js lewat transform-origin), chrome
+   di atasnya menepi, lalu barulah alamat hub dibuka. Hub
+   melanjutkan gerakan yang sama dengan zoom masuk, sehingga
+   perpindahan dua halaman terbaca sebagai satu gerakan.
+
+   Durasi di bawah harus sama dengan LAMA_ZOOM di script.js.
+   ========================================================= */
+.viewport{
+  transition:transform .42s cubic-bezier(.4,0,.2,1), opacity .42s ease;
+  will-change:transform;
+}
+body.is-zooming{ overflow:hidden; }
+body.is-zooming .viewport{ transform:scale(2.1); opacity:0; }
+body.is-zooming .dock,
+body.is-zooming .dots,
+body.is-zooming .menu-btn,
+body.is-zooming .student-chip,
+body.is-zooming .dock__hint{
+  opacity:0; transform:translateY(10px);
+  transition:opacity .2s ease, transform .2s ease;
+  pointer-events:none;
+}
+
+/* Siswa yang memilih "kurangi gerakan" tidak mendapat animasi apa pun;
+   script.js juga melewati penundaannya, jadi halaman langsung berpindah. */
+@media (prefers-reduced-motion: reduce){
+  .viewport{ transition:none; }
+  body.is-zooming .viewport{ transform:none; opacity:1; }
+}
+
+/* ============================================================
+   PINTU GURU
+   ------------------------------------------------------------
+   Paling bawah di panel daftar, sengaja tidak menarik perhatian:
+   siswa tidak sedang mencarinya, guru tahu harus melihat ke mana.
+   ============================================================ */
+.sheet__guru{
+  display:block; text-align:center;
+  margin:2px 0 10px;
+  padding:8px;
+  font-size:13px; font-weight:600;
+  color:rgba(253,251,246,.52);
+  text-decoration:none;
+}
+.sheet__guru:hover,
+.sheet__guru:focus-visible{ color:rgba(253,251,246,.9); }

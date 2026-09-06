@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Bukit Camar — NarrativeLearn</title>
+<link rel="stylesheet" href="style_BukitCamar.css">
+</head>
+<body>
+
+<!-- ============================================================
+     LOCKED PAGE  (#lockedPage)
+     ============================================================ -->
+<div id="lockedPage" class="locked" hidden>
+  <div class="locked-card">
+    <span class="eyebrow">Bukit Camar</span>
+    <h1 class="locked-title">Not yet accessible</h1>
+    <hr class="rule">
+    <p class="locked-body">Finish your journey in <em>Ocean Journey</em> — West Nusa, East Nusa, and South Nusa — before stepping into Bukit Camar.</p>
+    <a href="../index.html" class="btn btn-primary">Back to the Lake of Lembayung map</a>
+  </div>
+</div>
+
+<!-- ============================================================
+     WELCOME 1  (#welcome1) — tap anywhere to continue
+     ============================================================ -->
+<div id="welcome1" class="welcome welcome-1" hidden>
+  <img class="welcome-bg" src="gambar/welcome-background.png" alt="" aria-hidden="true">
+  <div class="welcome-1-inner">
+    <p class="welcome-1-line-1">Hai, welcome to</p>
+    <h1 class="welcome-1-line-2">Narrative<span class="welcome-1-thin">Learn</span></h1>
+    <p class="welcome-1-line-3">Lake Lembayung · Bukit Camar</p>
+  </div>
+  <p class="welcome-tap" aria-hidden="true">tap anywhere to begin</p>
+</div>
+
+<!-- ============================================================
+     WELCOME 2  (#welcome2) — tap 1 shows the roadmap, tap 2 starts
+     ============================================================ -->
+<div id="welcome2" class="welcome welcome-2" hidden>
+  <div class="welcome-2-plate plate" aria-hidden="true">
+    <img src="gambar/welcome-lesson.jpg" alt="">
+    <span class="plate-empty">Lesson image — gambar/welcome-lesson.jpg</span>
+  </div>
+
+  <div class="welcome-2-body">
+    <div id="welcome2Intro" class="welcome-2-intro">
+      <span class="eyebrow">This lesson</span>
+      <p>Every story has a beginning, a problem, and an end. In this lesson, you will learn to find these three parts. You will also learn small clue words that tell you when something happens.</p>
+      <hr class="rule">
+      <p>These skills will help you every day. You will understand stories more deeply. And you will guess new words like a detective — using the clues around them.</p>
+    </div>
+
+    <ol id="welcome2Roadmap" class="roadmap" hidden>
+      <li class="roadmap-step">
+        <span class="roadmap-num">01</span>
+        <span class="roadmap-label">Read the story</span>
+        <span class="roadmap-hint">New characters &amp; places</span>
+      </li>
+      <li class="roadmap-step">
+        <span class="roadmap-num">02</span>
+        <span class="roadmap-label">Story structure</span>
+        <span class="roadmap-hint">Three questions</span>
+      </li>
+      <li class="roadmap-step">
+        <span class="roadmap-num">03</span>
+        <span class="roadmap-label">Time markers</span>
+        <span class="roadmap-hint">Find the clues in the text</span>
+      </li>
+      <li class="roadmap-step">
+        <span class="roadmap-num">04</span>
+        <span class="roadmap-label">Done</span>
+        <span class="roadmap-hint">On to the lake</span>
+      </li>
+    </ol>
+  </div>
+
+  <p class="welcome-tap" id="welcome2Tap" aria-hidden="true">tap to see the plan</p>
+</div>
+
+<!-- ============================================================
+     APP SHELL  (#appShell)
+     ============================================================ -->
+<div id="appShell" class="shell" hidden>
+
+  <!-- ---------- NAVIGATOR: satu baris (lihat Revisi UI §1) ---------- -->
+  <header id="nav" class="nav" role="navigation" aria-label="Main navigator">
+    <div class="nav-left">
+      <span class="nav-brand" id="navBrand">NarrativeLearn</span>
+      <div class="nav-progress" aria-hidden="true">
+        <span class="nav-progress-fill" id="navProgressFill"></span>
+      </div>
+    </div>
+    <div class="nav-mid">
+      <div class="nav-hearts" id="navHearts" role="img" aria-label="Chances remaining"></div>
+      <div class="nav-actions">
+        <button type="button" id="navHome" class="nav-btn" aria-label="Home" title="Home">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+        </button>
+        <button type="button" id="navAsk" class="nav-btn" aria-label="Ask a question" title="Ask a question">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.2 9a2.9 2.9 0 0 1 5.6 1c0 2-2.8 2.3-2.8 4"/><path d="M12 17.4h.01"/></svg>
+        </button>
+        <button type="button" id="navCoach" class="nav-btn" aria-label="Coach mark" title="How this works">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5z"/></svg>
+        </button>
+        <button type="button" id="navBack" class="nav-btn" aria-label="Back" title="Back">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="nav-who">
+      <span class="nav-student" id="navStudent">Student</span>
+      <span class="nav-info" id="navInfo"></span>
+    </div>
+  </header>
+
+  <!-- ---------- REVIEW GATE (teacher-controlled) ---------- -->
+  <div id="reviewPage" class="gate" hidden>
+    <div id="reviewWaiting1" class="gate-screen">
+      <span class="eyebrow gate-eyebrow">Before we read</span>
+      <p class="gate-caption">Please look up and pay attention to your teacher. Wait for further instructions.</p>
+    </div>
+
+    <div id="reviewVideoWrap" class="gate-video" hidden>
+      <video id="reviewVideoEl" class="gate-video-el" controls playsinline preload="none">
+        <source src="video/bukit-camar-review.mp4" type="video/mp4">
+      </video>
+      <p id="reviewVideoFallback" class="gate-caption gate-caption-dim" hidden>The video will appear here once it has been uploaded.</p>
+    </div>
+
+    <div id="reviewWaiting2" class="gate-screen" hidden>
+      <span class="eyebrow gate-eyebrow">Video finished</span>
+      <p class="gate-caption">Please wait for your teacher before continuing.</p>
+    </div>
+  </div>
+
+  <!-- ---------- OUT OF CHANCES (teacher restores) ---------- -->
+  <div id="heartsGate" class="gate" hidden>
+    <div class="gate-screen">
+      <span class="eyebrow gate-eyebrow">Out of chances</span>
+      <p class="gate-caption">All seven chances are used up. Ask your teacher to give them back before you continue.</p>
+    </div>
+  </div>
+
+  <!-- ---------- MATERIAL (reading) ---------- -->
+  <main class="page" id="materialPage1" hidden>
+    <p class="eyebrow page-eyebrow">Material · Reading</p>
+    <h1 class="page-title" id="storyTitle">When Bukit Camar Lost Its Roots</h1>
+    <hr class="rule">
+
+    <details class="vocab">
+      <summary><span>Vocabulary help</span><span class="vocab-chevron" aria-hidden="true"></span></summary>
+      <dl class="vocab-list">
+        <div class="vocab-item"><dt>illegal logging</dt><dd>cutting down trees without official permission</dd></div>
+        <div class="vocab-item"><dt>landslide</dt><dd>a mass of soil and rock on a slope that collapses and moves downward</dd></div>
+        <div class="vocab-item"><dt>flash flood</dt><dd>a sudden, powerful flood with a fast-moving current</dd></div>
+        <div class="vocab-item"><dt>comb (an area)</dt><dd>to search a whole area carefully, section by section</dd></div>
+      </dl>
+    </details>
+
+    <div class="story-text" id="storyText"></div>
+
+    <button type="button" id="storyContinueBtn" class="btn btn-primary page-cta">Continue to the activities</button>
+  </main>
+
+  <!-- ---------- ACTIVITY 1: story structure (halaman tersendiri) ---------- -->
+  <main class="page" id="activityPage1" hidden>
+    <p class="eyebrow page-eyebrow">Activity 1 of 2</p>
+    <h1 class="page-title">Story structure</h1>
+    <hr class="rule">
+    <p class="sheet-step" id="act1Progress"></p>
+    <p class="sheet-prompt" id="act1Prompt"></p>
+    <div class="numgrid" id="act1Options"></div>
+    <div class="feedback" id="act1Feedback" hidden></div>
+    <button type="button" id="act1NextBtn" class="btn btn-primary page-cta" hidden>Next question</button>
+  </main>
+
+  <!-- ---------- ACTIVITY 2: time markers (halaman tersendiri — lihat
+       Revisi UI §3; teks cerita ada di #act2StoryPanel, panel referensi
+       buka-tutup, bukan mengalir bebas di halaman — lihat Revisi 2) ---------- -->
+  <main class="page hunt-page" id="activityPage2" hidden>
+    <div class="hunt-bar" id="huntBar">
+      <span class="eyebrow">Activity 2 of 2</span>
+      <p class="hunt-count"><span id="act2Count">0</span> of 3 found</p>
+    </div>
+    <p class="sheet-prompt">Find three time markers in the story. Words with a dashed underline can be tapped — but not all of them are sequence markers, so read the sentence around them first.</p>
+    <div class="markbar" id="act2Found" aria-live="polite"></div>
+    <div class="feedback" id="act2Feedback" hidden></div>
+
+    <!-- Revisi 2: teks cerita dipisah ke panel referensi buka-tutup
+         (bukan lagi mengalir bebas di halaman) — dibuka default supaya
+         aktivitas langsung terlihat, tapi tetap bisa ditutup siswa.
+         Pakai class .vocab yang sama dengan "Vocabulary help" di
+         Material: kotak disclosure yang sama pantas dipakai ulang di
+         sini (lihat style_BukitCamar.css §7). -->
+    <details class="vocab story-panel" id="act2StoryPanel" open>
+      <summary><span>Story text</span><span class="vocab-chevron" aria-hidden="true"></span></summary>
+      <!-- #storyText dipindah ke sini oleh Act2.start() (script_BukitCamar.js) -->
+    </details>
+  </main>
+
+  <!-- ---------- CLOSING (halaman tersendiri) ---------- -->
+  <main class="page" id="closingPage1" hidden>
+    <p class="eyebrow page-eyebrow">Done</p>
+    <h1 class="page-title">Ready for Lake Lembayung</h1>
+    <hr class="rule">
+    <p class="sheet-prompt">Your Ocean Journey adventure is complete. Three villages around the lake are waiting for you.</p>
+    <dl class="scorecard" id="scorecard"></dl>
+    <button type="button" id="closingFinishBtn" class="btn btn-primary page-cta">Done — go to the lake</button>
+  </main>
+
+  <!-- ---------- ASK A QUESTION ---------- -->
+  <div id="askPanel" class="dialog-wrap" hidden>
+    <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="askTitle">
+      <span class="eyebrow">To your teacher</span>
+      <h2 class="dialog-title" id="askTitle">Ask a question</h2>
+      <hr class="rule">
+      <label class="field">
+        <span>What would you like to ask?</span>
+        <textarea id="askText" class="input" rows="4" placeholder="I don't understand the instruction for…"></textarea>
+      </label>
+      <p class="dialog-note" id="askNote">Your teacher will see this on their own screen.</p>
+      <div class="dialog-actions">
+        <button type="button" id="askCancel" class="btn btn-ghost">Cancel</button>
+        <button type="button" id="askSend" class="btn btn-primary">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ---------- COACH MARK (kartu + cincin spotlight — lihat Revisi UI §2).
+       Elemen terpisah dari .dialog-wrap yang dipakai Ask di atas. ---------- -->
+  <div id="coachWrap" class="coach-wrap" hidden>
+    <div id="coachSpotlight" class="coach-spotlight" aria-hidden="true"></div>
+    <div class="coach-card" id="coachCard" role="dialog" aria-modal="true" aria-labelledby="coachTitle">
+      <span class="eyebrow" id="coachStep"></span>
+      <h2 class="dialog-title" id="coachTitle">How this works</h2>
+      <hr class="rule">
+      <p class="dialog-body" id="coachText"></p>
+      <div class="dialog-actions">
+        <button type="button" id="coachClose" class="btn btn-ghost">Close</button>
+        <button type="button" id="coachNext" class="btn btn-primary">Continue</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     HINT — instruksi ringkas di pojok kanan atas (Revisi R3).
+     Menggantikan coach mark di welcome-1, welcome-2, dan gerbang
+     review (yang di platform ini juga menampung video materi).
+     Hilang sendiri setelah 3 detik, atau langsung saat ditekan.
+     ============================================================ -->
+<div id="hintHost" class="hint-host" aria-live="polite"></div>
+
+<div id="transitionOverlay" class="transition" aria-hidden="true"></div>
+
+<!-- ============================================================
+     ⚠️ MODE PENGEMBANG — HAPUS BLOK INI SEBELUM LAUNCHING
+     Cari komentar "MODE PENGEMBANG" yang sama di style_BukitCamar.css dan
+     script_BukitCamar.js, lalu hapus ketiganya sebelum rilis ke siswa.
+     ============================================================ -->
+<div id="devPanel" class="dev-panel" hidden>
+  <button type="button" id="devAnswer" class="dev-btn" title="Answer correctly (this step only)" aria-label="Answer correctly for the step currently shown">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+  </button>
+  <!-- Revisi 4: tombol persegi panjang — bentuknya sendiri yang beda
+       dari devAnswer (bulat), bukan cuma ikon di dalamnya, supaya
+       gampang dibedakan sekilas. Ikon "dua kotak" tetap dipakai di
+       dalamnya sebagai isyarat visual ke spotlight Coach Mark. -->
+  <button type="button" id="devCoachToggle" class="dev-btn-rect" title="Toggle Coach Mark" aria-label="Toggle Coach Mark on or off" aria-pressed="true">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="7" height="10" rx="1.5"/><rect x="14" y="7" width="7" height="10" rx="1.5"/></svg>
+  </button>
+</div>
+<div id="devTooltip" class="dev-tooltip" aria-hidden="true"></div>
+<!-- ====================== AKHIR MODE PENGEMBANG ====================== -->
+
+<script src="script_BukitCamar.js"></script>
+<!-- Kanal ke panel guru (teacher/index.html). Wajib SESUDAH script_BukitCamar.js:
+     berkas ini membaca TeacherAPI dan Gate yang baru ada setelah script itu jalan. -->
+<script src="../../shared/teacher.js"></script>
+</body>
+</html>

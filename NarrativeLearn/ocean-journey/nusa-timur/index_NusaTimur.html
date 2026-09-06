@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Nusa Timur · Ocean Journey — NarrativeLearn</title>
+<link rel="stylesheet" href="style_NusaTimur.css">
+</head>
+<body>
+
+<!-- ============================================================
+     PETA HALAMAN
+       #lockedPage              gerbang prasyarat (Nusa Barat)
+       #welcome1 / #welcome2    sambutan (tap untuk lanjut)
+       #appShell
+         header#nav             navigator dua tingkat
+         #gate                  tunggu guru / nyawa habis
+         main#stage
+           #videoPage           materi video
+           #storyPage           materi cerita (baca dulu, sebelum Activity 1)
+           #markerPage          Activity 1 — enam penanda waktu (halaman mandiri)
+           #quotePage           Activity 2 — Who Says It?
+           #quizPage            Activity 3 — kuis 7 soal
+           #resultPage          hasil
+     ============================================================ -->
+
+<div id="lockedPage" class="locked">
+  <div class="locked-card">
+    <span class="eyebrow">Nusa Timur · Language</span>
+    <h1 class="locked-title">Not yet unlocked</h1>
+    <hr class="rule">
+    <p class="locked-body">Finish <em>Nusa Barat</em> first. This island builds on the story you read there.</p>
+    <a href="../nusa-barat/index_NusaBarat.html" class="btn btn-primary">Go to Nusa Barat</a>
+    <p class="locked-body" style="margin-top:18px"><a href="../index.html">Back to the map</a></p>
+  </div>
+</div>
+
+<div id="welcome1" class="welcome welcome-1" hidden>
+  <img class="welcome-bg" src="gambar/welcome-background.png" alt="" aria-hidden="true">
+  <div class="welcome-1-inner">
+    <p class="welcome-1-line-1">Hai, welcome to</p>
+    <h1 class="welcome-1-line-2">Narrative<span class="welcome-1-thin">Learn</span></h1>
+    <p class="welcome-1-line-3">Ocean Journey · Nusa Timur</p>
+  </div>
+  <p class="welcome-tap" aria-hidden="true">tap anywhere to begin</p>
+</div>
+
+<div id="welcome2" class="welcome welcome-2" hidden>
+  <div class="welcome-2-plate plate" aria-hidden="true">
+    <img id="welcome2Image" src="gambar/welcome-banner.jpg" alt="">
+    <span class="plate-empty">Lesson image — gambar/welcome-banner.jpg</span>
+  </div>
+
+  <div class="welcome-2-body">
+    <div id="welcome2Intro" class="welcome-2-intro">
+      <span class="eyebrow">What you will learn</span>
+      <p>Same three islands, same story — but this time you look at the language. Which words tell you when something happens, and who is speaking when the text does not say so directly.</p>
+      <hr class="rule">
+      <span class="eyebrow">Why it helps you</span>
+      <p>Time words hold a story together, and knowing who speaks tells you whose side of the story you are hearing. Both make you a faster, sharper reader.</p>
+    </div>
+
+    <ol id="welcome2Roadmap" class="roadmap" hidden>
+      <li class="roadmap-step">
+        <span class="roadmap-num">01</span>
+        <span class="roadmap-label">Watch &amp; learn</span>
+        <span class="roadmap-hint">A video from your teacher</span>
+      </li>
+      <li class="roadmap-step">
+        <span class="roadmap-num">02</span>
+        <span class="roadmap-label">Time words</span>
+        <span class="roadmap-hint">Six to find in the story</span>
+      </li>
+      <li class="roadmap-step">
+        <span class="roadmap-num">03</span>
+        <span class="roadmap-label">Who says it?</span>
+        <span class="roadmap-hint">Six quotes to place</span>
+      </li>
+      <li class="roadmap-step">
+        <span class="roadmap-num">04</span>
+        <span class="roadmap-label">Quiz</span>
+        <span class="roadmap-hint">Seven questions to finish</span>
+      </li>
+    </ol>
+  </div>
+
+  <p class="welcome-tap" id="welcome2Tap" aria-hidden="true">tap to see your path</p>
+</div>
+
+<div id="appShell" class="shell" hidden>
+
+  <header id="nav" class="nav" role="navigation" aria-label="Main navigator">
+    <div class="nav-tier nav-tier-1">
+      <span class="nav-brand" id="navBrand">NarrativeLearn</span>
+      <div class="nav-hearts" id="navHearts" role="img" aria-label="Lives remaining"></div>
+      <div class="nav-who">
+        <span class="nav-student" id="navStudent">Student</span>
+      </div>
+    </div>
+    <div class="nav-tier nav-tier-2">
+      <div class="nav-progress" aria-hidden="true">
+        <span class="nav-progress-fill" id="navProgressFill"></span>
+      </div>
+      <span class="nav-steps" id="navSteps" aria-label="0 of 19 steps completed">0 of 19</span>
+      <div class="nav-actions">
+        <button type="button" id="navHome" class="nav-btn" aria-label="Home" title="Home">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+        </button>
+        <button type="button" id="navAsk" class="nav-btn" aria-label="Ask a question" title="Ask a question">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.2 9a2.9 2.9 0 0 1 5.6 1c0 2-2.8 2.3-2.8 4"/><path d="M12 17.4h.01"/></svg>
+        </button>
+        <button type="button" id="navCoach" class="nav-btn" aria-label="Coach mark" title="How this works">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5z"/></svg>
+        </button>
+        <button type="button" id="navBack" class="nav-btn" aria-label="Back" title="Back">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div id="gate" class="gate" hidden>
+    <div class="gate-screen">
+      <span class="eyebrow gate-eyebrow" id="gateEyebrow">Wait for your teacher</span>
+      <p class="gate-caption" id="gateCaption">Please look at your teacher and wait for further instructions.</p>
+      <span class="gate-dots" aria-hidden="true"><span></span><span></span><span></span></span>
+    </div>
+  </div>
+
+  <main class="stage" id="stage">
+
+    <!-- ---------- MATERI: video ---------- -->
+    <section id="videoPage" class="page page-video" hidden>
+      <span class="eyebrow">Materials · Video</span>
+      <h1 class="page-title">Words that tell you when</h1>
+      <hr class="rule">
+      <figure class="plate video-plate" id="videoPlate">
+        <video id="videoEl" class="video-el" controls playsinline poster="video/materi-poster.jpg">
+          <source src="video/materi-nusa-timur.mp4" type="video/mp4">
+        </video>
+        <span class="plate-empty">Video — video/materi-nusa-timur.mp4</span>
+      </figure>
+      <p class="page-note">Press play when you are ready. Your teacher will let you continue once it ends.</p>
+    </section>
+
+    <!-- ---------- MATERI: cerita (dibaca dulu, sebelum Activity 1) ---------- -->
+    <section id="storyPage" class="page page-story" hidden>
+      <span class="eyebrow">Materials · Story</span>
+      <h1 class="page-title">Read the story first</h1>
+      <hr class="rule">
+      <p class="page-note">Read the whole story once. The next page turns this same text into Activity 1.</p>
+      <div class="story-text" id="storyReadText"></div>
+      <button type="button" id="storyContinueBtn" class="btn btn-primary quiz-next">Continue to Activity 1</button>
+    </section>
+
+    <!-- ---------- ACTIVITY 1: penanda waktu ---------- -->
+    <section id="markerPage" class="page page-marker" hidden>
+      <div class="page-head">
+        <span class="eyebrow">Activity 1 of 3</span>
+        <div class="dots" id="markerDots" aria-hidden="true"></div>
+      </div>
+      <h1 class="page-title">Find the six time words</h1>
+      <p class="page-note" id="markerProgressLabel">0 of 6 found</p>
+      <hr class="rule">
+      <p class="activity-prompt">Tap the words in the story that tell you <em>when</em> something happens. Six of them are hiding in this text. A wrong tap costs one life; after two misses on the same try, one of the remaining time words is marked for you.</p>
+      <div class="story-text" id="storyText"></div>
+      <div class="found-list" id="foundList"></div>
+      <div class="feedback" id="markerFeedback" hidden></div>
+      <button type="button" id="markerContinueBtn" class="btn btn-primary quiz-next" hidden>Continue to Who says it?</button>
+    </section>
+
+    <!-- ---------- ACTIVITY 2: Who Says It? ---------- -->
+    <section id="quotePage" class="page page-quote" hidden>
+      <div class="page-head">
+        <span class="eyebrow" id="quoteLabel">Quote 1 of 6</span>
+        <div class="dots" id="quoteDots" aria-hidden="true"></div>
+      </div>
+      <h1 class="page-title">Who says it?</h1>
+      <blockquote class="quote" id="quoteText"></blockquote>
+      <p class="quote-context" id="quoteContext"></p>
+      <hr class="rule">
+      <p class="dilemma-sub">Choose the speaker</p>
+      <div class="options" id="quoteOptions"></div>
+      <div class="feedback" id="quoteFeedback" hidden></div>
+      <button type="button" id="quoteNextBtn" class="btn btn-primary quiz-next" hidden>Next quote</button>
+    </section>
+
+    <!-- ---------- ACTIVITY 3: kuis ---------- -->
+    <section id="quizPage" class="page page-quiz" hidden>
+      <div class="page-head">
+        <span class="eyebrow" id="quizLabel">Question 1 of 7</span>
+        <div class="dots" id="quizDots" aria-hidden="true"></div>
+      </div>
+      <h1 class="quiz-question" id="quizQuestion"></h1>
+      <hr class="rule">
+      <div class="options" id="quizOptions"></div>
+      <div class="feedback" id="quizFeedback" hidden></div>
+      <button type="button" id="quizNextBtn" class="btn btn-primary quiz-next" hidden>Next question</button>
+    </section>
+
+    <!-- ---------- HASIL ---------- -->
+    <section id="resultPage" class="page page-result" hidden>
+      <span class="eyebrow">Nusa Timur complete</span>
+      <h1 class="page-title">Nineteen steps, summed up</h1>
+      <hr class="rule">
+
+      <dl class="scorecard" id="resultScore"></dl>
+
+      <h2 class="section-title">Activity by activity</h2>
+      <ol class="steplist" id="resultSteps"></ol>
+
+      <h2 class="section-title">Worth rereading</h2>
+      <ol class="answerlist" id="resultAnswers"></ol>
+
+      <h2 class="section-title">What to carry to Nusa Selatan</h2>
+      <ul class="tips" id="resultTips"></ul>
+
+      <div class="dialog-actions" style="justify-content:flex-start">
+        <button type="button" id="copyResultBtn" class="btn btn-ghost">Copy result</button>
+      </div>
+      <a href="../index.html" class="btn btn-primary result-btn" id="resultBackBtn">Back to the map</a>
+    </section>
+
+  </main>
+
+  <div id="askPanel" class="dialog-wrap" hidden>
+    <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="askTitle">
+      <span class="eyebrow">To your teacher</span>
+      <h2 class="dialog-title" id="askTitle">Ask a question</h2>
+      <hr class="rule">
+      <label class="field">
+        <span>What would you like to ask?</span>
+        <textarea id="askText" class="input" rows="4" placeholder="I don't understand the instruction for…"></textarea>
+      </label>
+      <p class="dialog-note" id="askNote">Your teacher will see this on their own screen.</p>
+      <div class="dialog-actions">
+        <button type="button" id="askCancel" class="btn btn-ghost">Cancel</button>
+        <button type="button" id="askSend" class="btn btn-primary">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="coachWrap" hidden>
+    <div id="coachOverlay" class="coach-overlay"></div>
+    <div id="coachHole" class="coach-hole" hidden></div>
+    <div id="coachTip" class="coach-tip" role="dialog" aria-modal="true" aria-label="Coach tip" aria-describedby="coachText">
+      <span class="eyebrow" id="coachStep"></span>
+      <p class="coach-tip-text" id="coachText"></p>
+      <div class="coach-tip-actions">
+        <button type="button" id="coachClose" class="btn btn-ghost">Close</button>
+        <button type="button" id="coachNext" class="btn btn-primary">Continue</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     HINT — instruksi ringkas di pojok kanan atas (Revisi R3).
+     Menggantikan coach mark di welcome-1, welcome-2, gerbang
+     tunggu, dan halaman video. Hilang sendiri setelah 3 detik,
+     atau langsung saat ditekan. Berbeda peran dari #toast di
+     bawah-tengah, yang dipakai untuk umpan balik permainan.
+     ============================================================ -->
+<div id="hintHost" class="hint-host" aria-live="polite"></div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<div id="blackout" class="blackout" aria-hidden="true" hidden></div>
+<div id="transitionOverlay" class="transition" aria-hidden="true"></div>
+
+<div class="swipe-zone swipe-zone-left" data-swipe="left" aria-hidden="true"></div>
+<div class="swipe-zone swipe-zone-right" data-swipe="right" aria-hidden="true"></div>
+
+<!-- ============================================================
+     ⚠️ MODE PENGEMBANG — HAPUS BLOK INI SEBELUM LAUNCHING
+     ============================================================ -->
+<div id="devPanel" class="dev-panel" hidden>
+  <button type="button" id="devAnswer" class="dev-btn dev-btn-skip" title="Pass the step currently shown" aria-label="Pass the step currently shown">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+  </button>
+  <button type="button" id="devCoachToggle" class="dev-btn dev-btn-coach is-on" title="Auto coach mark: ON — tap to turn off" aria-label="Toggle automatic coach mark" aria-pressed="true">
+    <svg class="dev-icon-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1.5 12S5 5 12 5s10.5 7 10.5 7-3.5 7-10.5 7S1.5 12 1.5 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+    <svg class="dev-icon-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.7 5.1A11 11 0 0 1 12 5c7 0 10.5 7 10.5 7a17.9 17.9 0 0 1-3.2 4.2M6.6 6.7C3.9 8.4 1.5 12 1.5 12S5 19 12 19c1.4 0 2.7-.3 3.9-.7"/><path d="M9.5 9.6a3 3 0 0 0 4.2 4.2"/></svg>
+  </button>
+</div>
+<div id="devTooltip" class="dev-tooltip" aria-hidden="true"></div>
+<!-- ====================== AKHIR MODE PENGEMBANG ====================== -->
+
+<script src="script_NusaTimur.js"></script>
+<!-- Kanal ke panel guru (teacher/index.html). Wajib SESUDAH script_NusaTimur.js:
+     berkas ini membaca TeacherAPI dan Gate yang baru ada setelah script itu jalan. -->
+<script src="../../shared/teacher.js"></script>
+<script>
+  /* Pengecekan mandiri kalau script_NusaTimur.js gagal dimuat (404 / salah folder). */
+  window.addEventListener('load', function () {
+    setTimeout(function () {
+      if (typeof DEV_MODE === 'undefined') {
+        var card = document.querySelector('.locked-card');
+        if (card && !document.getElementById('jsLoadError')) {
+          var msg = document.createElement('p');
+          msg.id = 'jsLoadError';
+          msg.className = 'locked-body';
+          msg.style.cssText = 'margin-top:18px;padding:12px;border:1px solid #97402f;border-radius:4px;color:#97402f;';
+          msg.textContent = 'script_NusaTimur.js gagal dimuat (404 atau salah lokasi). Pastikan nama filenya persis "script_NusaTimur.js" dan sejajar dengan index_NusaTimur.html ini.';
+          card.appendChild(msg);
+        }
+        document.getElementById('lockedPage').hidden = false;
+      }
+    }, 400);
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="id" data-world="ocean">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b3a5c">
+<title>Ocean Journey — Narrative Learn</title>
+<meta name="description" content="Tiga perjalanan menyeberangi samudra makna, dilihat dari geladak kapal yang menuju pesisir.">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/hub.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<a class="skip-link" href="#menuBtn">Lewati pemandangan, buka daftar perjalanan</a>
+
+<!-- =========================================================
+     PANGGUNG
+     ---------------------------------------------------------
+     Lebar relnya TEPAT tiga layar (lihat --panel-n di style.css),
+     jadi ada tiga kali berhenti: satu pulau di tiap layar.
+     Urutan panel dari kiri ke kanan:
+
+         Nusa Selatan  ·  Nusa Timur  ·  Nusa Barat
+
+     Sengaja terbalik dari urutan perjalanan. Kapal berlayar ke
+     KANAN sementara pandangan menoleh ke KIRI, jadi perjalanan
+     dimulai dari panel paling kanan (Nusa Barat) dan bergerak
+     ke kiri menyusuri pesisir. Halaman ini memang dibuka pada
+     posisi paling kanan — lihat boot() di script.js.
+     ========================================================= -->
+<div class="viewport" id="viewport" role="region" tabindex="0"
+     aria-label="Pemandangan dari geladak kapal. Geser ke kiri atau kanan untuk menyusuri tiga pulau.">
+  <div class="world" id="world">
+
+    <!-- ============ LAPIS 1 : LANGIT ============
+         Latarnya gradien CSS, bukan SVG yang diregangkan — kalau
+         diregangkan, awan ikut gepeng di layar jangkung. Awan di
+         bawah ini elemen tersendiri yang berjalan dengan
+         kecepatannya masing-masing. -->
+    <div class="layer layer--sky" data-speed="0.18">
+      <div class="sun" aria-hidden="true"></div>
+
+      <div class="cloud cloud--a" style="--x:6%;  --y:14%; --s:1.15; --dur:104s" aria-hidden="true">
+        <svg viewBox="0 0 300 100"><path d="M18,84 q-16,-30 16,-38 q4,-30 36,-30 q20,-22 50,-8 q26,-20 52,4 q34,-6 44,22 q26,6 22,30 q-4,20 -30,20 Z"/></svg>
+      </div>
+      <div class="cloud cloud--b" style="--x:28%; --y:8%;  --s:0.8;  --dur:142s" aria-hidden="true">
+        <svg viewBox="0 0 300 100"><path d="M14,84 q-14,-26 14,-34 q6,-26 34,-26 q20,-18 46,-6 q28,-16 50,6 q30,-2 38,20 q22,8 16,26 q-6,16 -26,16 Z"/></svg>
+      </div>
+      <div class="cloud cloud--c" style="--x:47%; --y:19%; --s:1.35; --dur:88s" aria-hidden="true">
+        <svg viewBox="0 0 300 100"><path d="M20,84 q-18,-28 14,-36 q2,-32 38,-30 q22,-20 48,-4 q28,-18 54,6 q30,-4 40,24 q24,8 18,28 q-6,14 -28,14 Z"/></svg>
+      </div>
+      <div class="cloud cloud--d" style="--x:66%; --y:10%; --s:0.95; --dur:126s" aria-hidden="true">
+        <svg viewBox="0 0 300 100"><path d="M16,84 q-14,-28 16,-34 q4,-28 34,-28 q22,-18 48,-4 q26,-16 48,6 q32,-4 40,22 q22,8 16,26 q-6,14 -26,14 Z"/></svg>
+      </div>
+      <div class="cloud cloud--e" style="--x:88%; --y:16%; --s:1.1;  --dur:114s" aria-hidden="true">
+        <svg viewBox="0 0 300 100"><path d="M18,84 q-16,-30 16,-36 q4,-30 36,-28 q20,-20 48,-6 q28,-18 52,6 q32,-4 42,22 q24,8 18,28 q-6,14 -28,14 Z"/></svg>
+      </div>
+
+      <!-- Burung: penanda kecil bahwa daratan sudah dekat. -->
+      <div class="birds" style="--x:74%; --y:26%" aria-hidden="true">
+        <svg viewBox="0 0 120 40"><path d="M6,20 q10,-9 20,0 q10,-9 20,0 M60,10 q9,-8 18,0 q9,-8 18,0 M40,32 q8,-7 16,0 q8,-7 16,0"/></svg>
+      </div>
+    </div>
+
+    <!-- ============ LAPIS 2 : DARATAN JAUH ============
+         Punggungan berkabut di seberang selat. Puncak yang paling
+         tegas di sebelah kanan adalah BUKIT CAMAR — tempat pertama
+         di dunia berikutnya. Ia sengaja sudah terlihat dari sini,
+         samar, supaya perjalanan berikutnya terasa sudah menunggu
+         sebelum dunia ini selesai. -->
+    <div class="layer layer--ridge" data-speed="0.44">
+      <svg class="ridge" viewBox="0 0 1800 240" preserveAspectRatio="none" aria-hidden="true">
+        <path class="ridge__far"
+              d="M0,190 L110,150 L190,176 L300,120 L400,168 L520,132 L640,178 L760,142
+                 L900,182 L1040,138 L1160,176 L1290,126 L1420,170 L1560,134 L1700,172 L1800,150
+                 L1800,240 L0,240 Z"/>
+      </svg>
+
+    </div>
+
+    <!-- ============ LAPIS 3 : LAUT & TIGA PULAU ============ -->
+    <div class="layer layer--isles" data-speed="1">
+      <div class="sea" aria-hidden="true"></div>
+
+      <!-- Kilau panjang di permukaan, mengikuti arah matahari. -->
+      <div class="glint" aria-hidden="true">
+        <svg viewBox="0 0 1800 260" preserveAspectRatio="none">
+          <g>
+            <ellipse cx="300"  cy="40"  rx="210" ry="5"/>
+            <ellipse cx="760"  cy="92"  rx="260" ry="6"/>
+            <ellipse cx="1180" cy="52"  rx="190" ry="5"/>
+            <ellipse cx="1520" cy="128" rx="240" ry="7"/>
+            <ellipse cx="560"  cy="176" rx="300" ry="8"/>
+            <ellipse cx="1340" cy="208" rx="280" ry="8"/>
+          </g>
+        </svg>
+      </div>
+
+      <!-- ---------- BUKIT CAMAR ----------
+           Berdiri DI BALIK Nusa Barat, di seberang selat: tempat
+           pertama di dunia berikutnya, sudah terlihat samar dari
+           sini supaya perjalanan selanjutnya terasa sudah menunggu
+           sebelum dunia ini selesai.
+
+           Ia sengaja ditaruh di lapis pulau, bukan di lapis
+           punggungan. Lapis yang bergerak lebih lambat digeser
+           menjauh oleh parallax, dan di perhentian paling kanan
+           puncak ini akan terdorong keluar layar — padahal justru
+           di panel itulah ia harus terlihat. -->
+      <div class="camar" style="--x:88%" aria-hidden="true">
+        <svg viewBox="0 0 320 190" preserveAspectRatio="xMidYMax meet">
+          <path class="camar__body" d="M0,190 C 52,184 84,140 122,96 C 146,68 160,44 172,44 C 186,44 200,72 224,106 C 256,152 288,184 320,190 Z"/>
+          <path class="camar__ridge" d="M172,46 C 160,86 150,132 142,190"/>
+        </svg>
+        <span class="camar__label">Bukit Camar</span>
+      </div>
+
+      <!-- ---------- PANEL KIRI · NUSA SELATAN ----------
+           Pulau berkerucut, paling jauh dari kapal: perhentian
+           terakhir memang harus terasa paling jauh. -->
+      <div class="isle isle--selatan" style="--x:16.667%">
+        <svg viewBox="0 0 620 300" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+          <ellipse class="isle__wash" cx="310" cy="268" rx="268" ry="26"/>
+          <path class="isle__land" d="M62,268 C 78,222 150,200 236,196 C 330,192 424,206 490,232 C 536,250 556,262 566,268 Z"/>
+          <path class="isle__peak" d="M196,262 C 222,206 258,146 296,108 C 310,94 320,94 332,110 C 366,152 396,212 416,262 Z"/>
+          <path class="isle__ridge" d="M312,104 C 300,150 290,208 286,262"/>
+          <path class="isle__beach" d="M74,266 C 160,246 300,240 400,248 C 470,254 530,262 560,266"/>
+          <g class="isle__trees">
+            <path d="M150,264 l-13,0 l13,-30 l13,30 z"/><path d="M186,266 l-11,0 l11,-25 l11,25 z"/>
+            <path d="M446,262 l-12,0 l12,-28 l12,28 z"/><path d="M478,266 l-10,0 l10,-23 l10,23 z"/>
+          </g>
+        </svg>
+      </div>
+
+      <!-- ---------- PANEL TENGAH · NUSA TIMUR ----------
+           Dua karang kembar dengan kabut di selatnya. -->
+      <div class="isle isle--timur" style="--x:50%">
+        <svg viewBox="0 0 620 300" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+          <ellipse class="isle__wash" cx="310" cy="270" rx="286" ry="24"/>
+          <path class="isle__land" d="M40,270 C 62,236 132,216 214,212 C 300,208 392,214 468,232 C 528,246 566,260 580,270 Z"/>
+          <path class="isle__rock" d="M148,266 C 158,214 186,168 224,150 C 254,164 276,208 288,266 Z"/>
+          <path class="isle__rock" d="M330,266 C 342,206 374,158 414,140 C 448,156 472,204 484,266 Z"/>
+          <path class="isle__rock2" d="M224,150 C 232,190 240,232 244,266 L288,266 C 276,208 254,164 224,150 Z"/>
+          <path class="isle__rock2" d="M414,140 C 422,186 430,230 434,266 L484,266 C 472,204 448,156 414,140 Z"/>
+          <path class="isle__beach" d="M56,268 C 150,250 300,244 420,250 C 500,254 556,262 576,268"/>
+          <g class="isle__trees">
+            <path d="M108,266 l-11,0 l11,-25 l11,25 z"/><path d="M516,268 l-11,0 l11,-24 l11,24 z"/>
+            <path d="M548,270 l-9,0 l9,-20 l9,20 z"/>
+          </g>
+          <g class="isle__mist"><ellipse cx="310" cy="244" rx="150" ry="26"/><ellipse cx="270" cy="258" rx="110" ry="18"/></g>
+        </svg>
+      </div>
+
+      <!-- ---------- PANEL KANAN · NUSA BARAT ----------
+           Pulau berteluk, paling dekat dengan kapal: inilah
+           perhentian pertama, dan kapal sedang menuju ke sana. -->
+      <div class="isle isle--barat" style="--x:83.333%">
+        <svg viewBox="0 0 620 300" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+          <ellipse class="isle__wash" cx="310" cy="272" rx="300" ry="28"/>
+          <path class="isle__land" d="M18,272 C 40,224 118,196 216,190 C 322,184 434,196 516,224 C 570,242 598,262 606,272 Z"/>
+          <path class="isle__hill" d="M156,268 C 178,214 216,172 262,156 C 300,168 332,212 352,268 Z"/>
+          <path class="isle__hill2" d="M356,268 C 372,224 400,190 434,178 C 464,190 488,226 502,268 Z"/>
+          <path class="isle__bay"  d="M232,236 C 268,254 320,256 356,240 C 348,268 296,282 258,270 C 230,262 222,248 232,236 Z"/>
+          <path class="isle__beach" d="M34,270 C 140,244 320,236 456,244 C 540,250 590,262 604,270"/>
+          <g class="isle__trees">
+            <path d="M96,268 l-14,0 l14,-32 l14,32 z"/><path d="M136,272 l-11,0 l11,-26 l11,26 z"/>
+            <path d="M520,268 l-13,0 l13,-30 l13,30 z"/><path d="M556,272 l-10,0 l10,-24 l10,24 z"/>
+            <path d="M400,266 l-11,0 l11,-25 l11,25 z"/>
+          </g>
+          <g class="isle__huts">
+            <path d="M296,270 l0,-14 l16,-12 l16,12 l0,14 z"/>
+            <path d="M340,272 l0,-11 l13,-10 l13,10 l0,11 z"/>
+          </g>
+        </svg>
+      </div>
+    </div>
+
+    <!-- ============ LAPIS 4 : AIR DEKAT ============
+         Bergerak paling cepat, jadi terasa paling dekat dengan
+         lambung kapal. -->
+    <div class="layer layer--surf" data-speed="1.34">
+      <svg class="surf" viewBox="0 0 2400 300" preserveAspectRatio="none" aria-hidden="true">
+        <g class="surf__crest">
+          <path d="M0,60 q60,-22 120,0 t120,0 t120,0 t120,0 t120,0 t120,0 t120,0 t120,0 t120,0 t120,0 t120,0 t120,0 t120,0 t120,0 t120,0 t120,0 t120,0 t120,0 t120,0 t120,0"/>
+          <path d="M-60,150 q80,-28 160,0 t160,0 t160,0 t160,0 t160,0 t160,0 t160,0 t160,0 t160,0 t160,0 t160,0 t160,0 t160,0 t160,0 t160,0"/>
+          <path d="M-120,244 q100,-34 200,0 t200,0 t200,0 t200,0 t200,0 t200,0 t200,0 t200,0 t200,0 t200,0 t200,0 t200,0"/>
+        </g>
+      </svg>
+    </div>
+
+    <!-- Titik henti scroll-snap. Satu per panel, tepat selebar layar. -->
+    <b class="snap" data-stop="0"></b>
+    <b class="snap" data-stop="1"></b>
+    <b class="snap" data-stop="2"></b>
+
+  </div>
+</div>
+
+<!-- =========================================================
+     KAPAL
+     ---------------------------------------------------------
+     Menempel di layar dan TIDAK ikut tergulir: kapalnya memang
+     tempat siswa berdiri, bukan salah satu benda di kejauhan.
+     Tiang dan layar ada di kanan karena kapal berlayar ke kanan
+     sementara pandangan menoleh ke kiri — jadi rigging membingkai
+     pemandangan, bukan menutupinya.
+     ========================================================= -->
+<div class="ship" aria-hidden="true">
+  <div class="ship__bob">
+
+    <!-- Buih yang menyusur lambung. Inilah satu-satunya tanda bahwa
+         kapal SEDANG BERJALAN saat layar didiamkan: ia mengalir ke
+         kiri terus-menerus, tidak menunggu disentuh. -->
+    <div class="wake">
+      <span style="--d:9s;  --t:0%;   --w:52%"></span>
+      <span style="--d:13s; --t:34%;  --w:38%"></span>
+      <span style="--d:11s; --t:66%;  --w:46%"></span>
+    </div>
+
+    <!-- Tiang, layar, dan tali-temali. Kakinya menancap DI GELADAK
+         (lihat --deck-h di style.css), bukan mengambang di atas air. -->
+    <svg class="ship__rig" viewBox="0 0 400 640" preserveAspectRatio="xMaxYMax meet">
+      <g class="rig__lines">
+        <path d="M336,26 L96,470"/>
+        <path d="M336,26 L232,486"/>
+        <path d="M336,150 L86,392"/>
+      </g>
+      <path class="sail sail--back"  d="M332,52 C 246,118 176,236 142,364 L332,336 Z"/>
+      <path class="sail sail--front" d="M334,66 C 258,130 196,240 168,356 L334,332 Z"/>
+      <path class="boom" d="M338,330 L128,368 L131,384 L340,348 Z"/>
+      <rect class="mast" x="330" y="10" width="19" height="630" rx="8"/>
+      <path class="pennant" d="M340,16 C 300,8 268,24 232,14 C 262,34 300,30 340,40 Z"/>
+    </svg>
+
+    <!-- Geladak tempat siswa berdiri -->
+    <div class="ship__deck">
+      <svg class="deck__edge" viewBox="0 0 1200 200" preserveAspectRatio="none">
+        <path class="deck__fill" d="M0,200 L0,86 C 300,30 900,30 1200,86 L1200,200 Z"/>
+        <path class="deck__rail" d="M0,86 C 300,30 900,30 1200,86"/>
+        <path class="deck__rope" d="M0,124 C 320,74 880,74 1200,124"/>
+      </svg>
+      <span class="deck__coil" aria-hidden="true"></span>
+    </div>
+
+  </div>
+</div>
+
+<!-- ========================= CHROME ========================= -->
+
+<a class="back-btn" href="../index.html">
+  <span class="back-btn__arw" aria-hidden="true">‹</span>
+  <span>Narrative Learn</span>
+</a>
+
+<button class="menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="sheet">
+  <span class="menu-btn__bars" aria-hidden="true"><i></i><i></i></span>
+  <span class="menu-btn__label">Menu</span>
+</button>
+
+<!-- =========================================================
+     TOMBOL MULAI
+     ---------------------------------------------------------
+     Satu tombol per pulau, di tengah bawah layar. Yang tampil
+     hanya milik panel yang sedang di depan mata — lihat setStop()
+     di script.js. Urutan di sini mengikuti urutan PERJALANAN
+     (1,2,3), bukan urutan panel di layar, supaya urutan Tab tetap
+     masuk akal bagi pengguna papan ketik.
+     ========================================================= -->
+<div class="dock" id="dock">
+
+  <a class="dcard" data-stop="2" data-id="1" href="#">
+    <span class="dcard__no" aria-hidden="true">1</span>
+    <span class="dcard__body">
+      <span class="dcard__eyebrow">Perjalanan Pertama</span>
+      <span class="dcard__title">Nusa Barat</span>
+      <span class="dcard__desc">Genre dan struktur teks naratif.</span>
+    </span>
+    <span class="dcard__go">
+      <span class="dcard__golabel">Mulai</span>
+      <svg class="ico ico--go" viewBox="0 0 24 24"><path d="M4 12h14M12 6l6 6-6 6"/></svg>
+      <svg class="ico ico--lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="9.5" rx="2.5"/><path d="M8.5 10.5V7.5a3.5 3.5 0 0 1 7 0v3"/></svg>
+      <svg class="ico ico--done" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+    </span>
+  </a>
+
+  <a class="dcard" data-stop="1" data-id="2" href="#">
+    <span class="dcard__no" aria-hidden="true">2</span>
+    <span class="dcard__body">
+      <span class="dcard__eyebrow">Perjalanan Kedua</span>
+      <span class="dcard__title">Nusa Timur</span>
+      <span class="dcard__desc">Bahasa: penanda waktu, kata kerja, dan dialog.</span>
+    </span>
+    <span class="dcard__go">
+      <span class="dcard__golabel">Mulai</span>
+      <svg class="ico ico--go" viewBox="0 0 24 24"><path d="M4 12h14M12 6l6 6-6 6"/></svg>
+      <svg class="ico ico--lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="9.5" rx="2.5"/><path d="M8.5 10.5V7.5a3.5 3.5 0 0 1 7 0v3"/></svg>
+      <svg class="ico ico--done" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+    </span>
+  </a>
+
+  <a class="dcard" data-stop="0" data-id="3" href="#">
+    <span class="dcard__no" aria-hidden="true">3</span>
+    <span class="dcard__body">
+      <span class="dcard__eyebrow">Perjalanan Ketiga</span>
+      <span class="dcard__title">Nusa Selatan</span>
+      <span class="dcard__desc">Kosakata: memaknai kata dalam konteks cerita.</span>
+    </span>
+    <span class="dcard__go">
+      <span class="dcard__golabel">Mulai</span>
+      <svg class="ico ico--go" viewBox="0 0 24 24"><path d="M4 12h14M12 6l6 6-6 6"/></svg>
+      <svg class="ico ico--lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="9.5" rx="2.5"/><path d="M8.5 10.5V7.5a3.5 3.5 0 0 1 7 0v3"/></svg>
+      <svg class="ico ico--done" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+    </span>
+  </a>
+
+</div>
+
+<!-- Titik penunjuk posisi, urutannya mengikuti PANEL di layar
+     (kiri ke kanan), bukan urutan perjalanan. -->
+<nav class="dots" id="dots" aria-label="Lompat ke pulau">
+  <button type="button" class="dots__d" data-go="0" aria-label="Nusa Selatan, panel kiri"></button>
+  <button type="button" class="dots__d" data-go="1" aria-label="Nusa Timur, panel tengah"></button>
+  <button type="button" class="dots__d" data-go="2" aria-label="Nusa Barat, panel kanan"></button>
+</nav>
+
+<p class="toast" id="toast" role="status" aria-live="polite"></p>
+
+<!-- ================= PANEL DAFTAR ================= -->
+<div class="sheet-backdrop" id="sheetBackdrop" hidden></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" hidden>
+  <div class="sheet__grip" aria-hidden="true"></div>
+  <h2 class="sheet__title" id="sheetTitle">Ocean Journey</h2>
+  <div class="sheet__list" id="sheetList"></div>
+  <div class="sheet__tools">
+    <button class="sheet__tool" id="btnUnlock" type="button">Buka semua kunci</button>
+    <button class="sheet__tool" id="btnReset" type="button">Atur ulang progres</button>
+  </div>
+  <a class="sheet__home" href="../index.html">← Kembali ke Narrative Learn</a>
+  <button class="sheet__close" id="sheetClose" type="button">Tutup</button>
+</div>
+
+<script src="../shared/progress.js"></script>
+<script src="../shared/hub.js"></script>
+<script src="script.js"></script>
+</body>
+</html>

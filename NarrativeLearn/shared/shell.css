@@ -1,0 +1,206 @@
+/* ============================================================
+   NARRATIVE LEARN — shared/shell.css
+   ------------------------------------------------------------
+   Rangka luar untuk 7 platform daun: bilah atas, area isi, bilah
+   bawah, dan pesan singkat. HANYA rangkanya — apa pun yang kamu
+   letakkan di dalam <main id="isi"> sepenuhnya milikmu.
+
+   Halaman peta (induk + 2 hub) TIDAK memakai file ini; ketiganya
+   punya tata letak khusus sendiri.
+
+   Urutan pemuatan di tiap platform daun:
+
+     <link rel="stylesheet" href="../../shared/tokens.css">
+     <link rel="stylesheet" href="../../shared/shell.css">
+     <link rel="stylesheet" href="style.css">    <-- punyamu, paling akhir
+
+   Karena style.css dimuat terakhir, apa pun di sana menimpa yang
+   di sini. Jadi kalau satu platform butuh tampilan lain, timpa
+   saja — tidak perlu mengubah file bersama ini.
+   ============================================================ */
+
+*,*::before,*::after{ box-sizing:border-box; }
+
+html,body{
+  margin:0;
+  min-height:100%;
+  background:var(--w-900);
+  font-family:var(--font);
+  color:var(--paper);
+  -webkit-font-smoothing:antialiased;
+  -webkit-tap-highlight-color:transparent;
+  overscroll-behavior-y:none;
+}
+
+body{
+  /* ruang untuk bilah atas & bawah yang menempel */
+  padding:calc(60px + var(--safe-t)) 0 calc(88px + var(--safe-b));
+  background:
+    radial-gradient(120% 60% at 50% 0%, color-mix(in srgb, var(--w-700) 55%, transparent), transparent 70%),
+    var(--w-900);
+  background-attachment:fixed;
+}
+
+@supports not (background: color-mix(in srgb, red 50%, blue)){
+  body{ background:var(--w-900); }
+}
+
+button{ font:inherit; color:inherit; border:0; background:none; cursor:pointer; }
+a{ color:inherit; text-decoration:none; }
+img,svg,video{ max-width:100%; height:auto; }
+
+:focus-visible{ outline:3px solid #fff; outline-offset:3px; border-radius:8px; }
+
+.skip-link{
+  position:fixed; left:12px; top:-100px; z-index:99;
+  padding:10px 14px; border-radius:var(--r-sm);
+  background:var(--paper); color:var(--ink); font-size:14px; font-weight:600;
+  transition:top .2s;
+}
+.skip-link:focus{ top:calc(12px + var(--safe-t)); }
+
+/* ============================================================
+   BILAH ATAS
+   ============================================================ */
+.bar{
+  position:fixed; z-index:20; left:0; right:0; top:0;
+  display:flex; align-items:center; gap:10px;
+  padding:calc(8px + var(--safe-t)) 12px 8px;
+  background:color-mix(in srgb, var(--w-900) 78%, transparent);
+  -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px);
+  border-bottom:1px solid rgba(253,251,246,.12);
+}
+@supports not (background: color-mix(in srgb, red 50%, blue)){
+  .bar{ background:rgba(10,20,34,.86); }
+}
+
+.bar__back{
+  display:inline-flex; align-items:center; gap:7px;
+  min-height:44px; padding:0 13px 0 9px;
+  border-radius:999px;
+  background:rgba(253,251,246,.1);
+  border:1px solid rgba(253,251,246,.18);
+  font-size:13px; font-weight:650;
+  max-width:58vw;
+}
+.bar__back span:last-child{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.bar__back i{ font-style:normal; font-size:17px; line-height:1; opacity:.75; }
+
+.bar__title{
+  margin:0; min-width:0;
+  font-size:14px; font-weight:700; letter-spacing:-.01em;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+
+.bar__step{
+  margin-left:auto; flex:none;
+  padding:5px 11px; border-radius:999px;
+  background:rgba(253,251,246,.12);
+  font-size:12px; font-weight:650; letter-spacing:.04em;
+}
+
+/* ============================================================
+   ISI — bagian ini milikmu sepenuhnya
+   ============================================================ */
+.isi{
+  max-width:640px;
+  margin:0 auto;
+  padding:20px 18px 8px;
+}
+
+/* Bantuan seadanya supaya teks polos sudah terbaca enak.
+   Timpa di style.css platformmu kalau perlu. */
+.isi h1{ font-size:clamp(24px,6.4vw,32px); font-weight:800; letter-spacing:-.02em; line-height:1.15; margin:0 0 10px; }
+.isi h2{ font-size:clamp(18px,4.8vw,22px); font-weight:750; letter-spacing:-.015em; margin:28px 0 8px; }
+.isi p{ font-size:clamp(15px,4vw,17px); line-height:1.65; margin:0 0 14px; opacity:.9; }
+.isi ul,.isi ol{ font-size:clamp(15px,4vw,17px); line-height:1.65; padding-left:22px; opacity:.9; }
+.isi li{ margin-bottom:7px; }
+
+.kartu{
+  padding:16px;
+  border-radius:var(--r-lg);
+  background:rgba(253,251,246,.08);
+  border:1px solid rgba(253,251,246,.14);
+  margin-bottom:14px;
+}
+
+/* ============================================================
+   BILAH BAWAH
+   ============================================================ */
+.aksi{
+  position:fixed; z-index:20; left:0; right:0; bottom:0;
+  padding:12px 16px calc(14px + var(--safe-b));
+  background:color-mix(in srgb, var(--w-900) 82%, transparent);
+  -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px);
+  border-top:1px solid rgba(253,251,246,.12);
+}
+@supports not (background: color-mix(in srgb, red 50%, blue)){
+  .aksi{ background:rgba(10,20,34,.9); }
+}
+
+.aksi__btn{
+  display:flex; align-items:center; justify-content:center; gap:9px;
+  width:100%; max-width:460px; margin:0 auto;
+  min-height:52px; padding:0 20px;
+  border-radius:var(--r-md);
+  background:var(--paper); color:var(--ink);
+  font-size:16px; font-weight:750;
+  box-shadow:var(--shadow-1);
+  transition:transform .15s ease, opacity .2s ease;
+}
+.aksi__btn:active{ transform:scale(.985); }
+
+/* Nonaktif: dipakai selama syarat selesai belum terpenuhi */
+.aksi__btn[disabled]{
+  background:rgba(253,251,246,.14);
+  color:rgba(253,251,246,.55);
+  box-shadow:none;
+  cursor:not-allowed;
+}
+.aksi__btn[disabled]:active{ transform:none; }
+
+/* Sudah pernah diselesaikan sebelumnya */
+.aksi__btn.is-done{ background:var(--w-100); color:var(--w-900); }
+
+.aksi__catatan{
+  margin:9px auto 0; max-width:460px;
+  font-size:12px; line-height:1.4; text-align:center; opacity:.6;
+}
+
+/* ============================================================
+   PESAN SINGKAT
+   ============================================================ */
+.toast{
+  position:fixed; z-index:30;
+  left:50%; transform:translate(-50%, 10px);
+  bottom:calc(104px + var(--safe-b));
+  margin:0; max-width:min(86vw, 420px);
+  padding:11px 17px; border-radius:999px;
+  background:rgba(10,16,30,.92);
+  border:1px solid rgba(253,251,246,.22);
+  -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);
+  font-size:13px; line-height:1.4; text-align:center;
+  opacity:0; pointer-events:none;
+  transition:opacity .25s ease, transform .25s ease;
+}
+.toast.is-on{ opacity:1; transform:translate(-50%, 0); }
+
+/* ============================================================
+   KEADAAN MUAT & GAGAL
+   ============================================================ */
+.muat{ padding:60px 20px; text-align:center; opacity:.6; font-size:14px; }
+
+.galat{
+  margin:20px 18px;
+  padding:16px 18px;
+  border-radius:var(--r-md);
+  background:rgba(180,60,60,.18);
+  border:1px solid rgba(255,140,140,.35);
+  font-size:14px; line-height:1.55;
+}
+.galat strong{ display:block; margin-bottom:6px; }
+
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration:.001ms !important; animation-iteration-count:1 !important;
+     transition-duration:.001ms !important; scroll-behavior:auto !important; }
+}
