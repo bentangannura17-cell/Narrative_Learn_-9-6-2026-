@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#201f1d">
+<title>Panel Guru · Narrative Learn</title>
+<meta name="description" content="Pemandu jalannya kegiatan Narrative Learn: panduan langkah, kendali kelas, papan pertanyaan, rekap nilai, dan kunci jawaban.">
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<a class="skip" href="#utama">Lompat ke isi</a>
+
+<!-- =========================================================
+     GERBANG PIN
+     ---------------------------------------------------------
+     Panel ini satu asal (origin) dengan situs siswa, jadi
+     alamatnya bisa ditebak siapa pun yang tahu situsnya —
+     termasuk kunci jawaban di dalamnya. PIN ini PENGHALANG,
+     bukan pengamanan: ia menahan siswa yang iseng, bukan yang
+     bersungguh-sungguh. Untuk pengamanan sungguhan, panel ini
+     harus dipindah ke alamat terpisah dengan otentikasi server.
+     ========================================================= -->
+<div class="lock" id="lock" hidden>
+  <form class="lock__panel" id="lockForm">
+    <p class="eyebrow">Panel Guru</p>
+    <h1 class="lock__title">Masukkan PIN</h1>
+    <p class="lock__desc">Panel ini memuat kunci jawaban. PIN menahan siswa yang iseng — bukan pengamanan sungguhan.</p>
+    <input class="field lock__input" id="lockInput" type="password" inputmode="numeric"
+           autocomplete="off" maxlength="12" placeholder="••••" aria-label="PIN guru">
+    <p class="lock__err" id="lockErr" role="alert" hidden>PIN salah.</p>
+    <button class="btn btn--solid" type="submit">Buka panel</button>
+    <button class="btn btn--ghost btn--sm" id="lockForget" type="button">Lupa PIN — atur ulang panel</button>
+  </form>
+</div>
+
+<!-- ================= BILAH ATAS ================= -->
+<header class="topbar">
+  <div class="topbar__brand">
+    <span class="mark" aria-hidden="true"></span>
+    <span>
+      <b>Panel Guru</b>
+      <em>Narrative Learn</em>
+    </span>
+  </div>
+
+  <label class="topbar__pick">
+    <span class="topbar__picklabel">Perjalanan hari ini</span>
+    <select class="field" id="pickModul" aria-label="Pilih perjalanan yang dijalankan hari ini"></select>
+  </label>
+
+  <div class="topbar__clock" id="clockWrap" hidden>
+    <b class="clock" id="clock">00:00</b>
+    <span class="clock__cap" id="clockCap">berjalan</span>
+  </div>
+
+  <div class="topbar__act">
+    <button class="btn btn--ghost btn--sm" id="btnSesi" type="button">Mulai sesi</button>
+    <button class="btn btn--ghost btn--sm btn--icon" id="btnKunci" type="button" title="Kunci panel" aria-label="Kunci panel">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="9.5" rx="2.5"/><path d="M8.5 10.5V7.5a3.5 3.5 0 0 1 7 0v3"/></svg>
+    </button>
+  </div>
+</header>
+
+<!-- ================= TAB ================= -->
+<nav class="tabs" id="tabs" aria-label="Bagian panel">
+  <button class="tab is-on" type="button" data-panel="sesi">Persiapan</button>
+  <button class="tab" type="button" data-panel="panduan">Panduan Langkah</button>
+  <button class="tab" type="button" data-panel="kendali">Kendali Kelas</button>
+  <button class="tab" type="button" data-panel="tanya">Pertanyaan<b class="pip" id="pipTanya" hidden>0</b></button>
+  <button class="tab" type="button" data-panel="rekap">Rekap Nilai<b class="pip pip--calm" id="pipRekap" hidden>0</b></button>
+  <button class="tab" type="button" data-panel="kunci">Kunci Jawaban</button>
+  <button class="tab" type="button" data-panel="bantuan">Bantuan</button>
+</nav>
+
+<main id="utama">
+
+<!-- ========================================================
+     1. PERSIAPAN
+     ======================================================== -->
+<section class="panel is-on" id="p-sesi" aria-labelledby="h-sesi">
+  <h2 class="h" id="h-sesi">Persiapan sebelum kelas</h2>
+  <p class="lede">Kerjakan dari atas ke bawah. Tiga butir pertama bertanda <b class="tag tag--bad">kritis</b> — kalau terlewat, kelas berhenti di tengah jalan, bukan sekadar merepotkan.</p>
+
+  <div class="grid">
+    <div class="col col--wide">
+      <div class="card">
+        <div class="card__head">
+          <h3>Daftar periksa</h3>
+          <span class="meter"><b id="siapBar"></b></span>
+          <span class="meter__txt" id="siapTxt">0 dari 0</span>
+        </div>
+        <ul class="checks" id="daftarSiap"></ul>
+        <p class="note" id="siapNote"></p>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="card">
+        <h3>Sesi hari ini</h3>
+        <label class="lbl" for="inKelas">Kelas</label>
+        <input class="field" id="inKelas" type="text" maxlength="40" placeholder="Contoh: XI IPA 2">
+        <label class="lbl" for="inJumlah">Jumlah siswa hadir</label>
+        <input class="field" id="inJumlah" type="number" min="0" max="99" placeholder="Contoh: 32">
+        <p class="note" id="sesiNote">Sesi belum dimulai.</p>
+        <button class="btn btn--solid" id="btnSesi2" type="button">Mulai sesi</button>
+      </div>
+
+      <div class="card" id="kartuModul"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================================================
+     2. PANDUAN LANGKAH
+     ======================================================== -->
+<section class="panel" id="p-panduan" aria-labelledby="h-panduan">
+  <div class="panelhead">
+    <div>
+      <h2 class="h" id="h-panduan">Panduan langkah</h2>
+      <p class="lede" id="panduanLede"></p>
+    </div>
+    <div class="panelhead__act">
+      <button class="btn btn--ghost btn--sm" id="btnCetakPanduan" type="button">Cetak</button>
+      <button class="btn btn--ghost btn--sm" id="btnResetPanduan" type="button">Ulang dari awal</button>
+    </div>
+  </div>
+
+  <div class="progressline">
+    <span class="meter meter--tall"><b id="langkahBar"></b></span>
+    <span class="meter__txt" id="langkahTxt"></span>
+  </div>
+
+  <ol class="steps" id="daftarLangkah"></ol>
+
+  <div class="stepnav" id="stepnav">
+    <button class="btn btn--ghost" id="btnPrev" type="button">←<span class="wide-only">&nbsp;Langkah sebelumnya</span></button>
+    <button class="btn btn--solid" id="btnNext" type="button">Selesai — langkah berikutnya →</button>
+  </div>
+</section>
+
+<!-- ========================================================
+     3. KENDALI KELAS
+     ======================================================== -->
+<section class="panel" id="p-kendali" aria-labelledby="h-kendali">
+  <h2 class="h" id="h-kendali">Kendali kelas</h2>
+
+  <div class="warn">
+    <b>Sejauh mana tombol ini sampai.</b>
+    Sinyal ditulis ke penyimpanan peramban dan hanya terbaca oleh perangkat yang membuka
+    situs ini di peramban yang sama. Cocok untuk perangkat guru, layar proyektor, atau
+    perangkat bersama. Perangkat siswa yang terpisah <b>tidak</b> menerimanya — di kelas,
+    beri aba-aba lisan, dan siswa menekan tombolnya sendiri.
+    <br><br>
+    <b>Ketujuh modul</b> memantau sinyal ini. Pemantaunya tinggal di
+    <code>shared/teacher.js</code> — satu salinan yang dimuat semua modul, bukan tujuh
+    salinan yang bisa berbeda. Rinciannya ada di tab <b>Bantuan</b>.
+  </div>
+
+  <div class="grid">
+    <div class="col col--wide">
+      <div class="card">
+        <h3>Sinyal gerbang</h3>
+        <div class="signals" id="daftarSinyal"></div>
+        <p class="note">Sinyal terakhir: <b id="sinyalKini">belum ada</b>
+          <button class="btn btn--ghost btn--sm" id="btnHapusSinyal" type="button">Hapus sinyal</button>
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Progres di perangkat ini</h3>
+        <p class="note">Membaca ketujuh kunci hasil dari peramban ini. Berguna untuk perangkat contoh di proyektor, atau untuk memeriksa perangkat satu siswa.</p>
+        <table class="tbl" id="tblProgres"></table>
+        <div class="rowbtn">
+          <button class="btn btn--ghost btn--sm" id="btnMuatProgres" type="button">Muat ulang</button>
+          <button class="btn btn--ghost btn--sm" id="btnBukaSemua" type="button">Buka semua kunci</button>
+          <button class="btn btn--danger btn--sm" id="btnHapusProgres" type="button">Hapus progres perangkat ini</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="card">
+        <h3>Identitas siswa di perangkat ini</h3>
+        <p class="note">Isi kunci <code>nl_student_v1</code>.</p>
+        <dl class="kv" id="kvSiswa"></dl>
+        <button class="btn btn--ghost btn--sm" id="btnMuatSiswa" type="button">Muat ulang</button>
+      </div>
+
+      <div class="card">
+        <h3>Pengingat cepat</h3>
+        <ul class="bul">
+          <li>Nyawa habis bukan kegagalan — progres siswa tetap utuh, tinggal dipulihkan.</li>
+          <li>Kode hasil gabungan Ocean Journey hanya terbit di layar hasil <b>Nusa Selatan</b>.</li>
+          <li>Di <b>Bukit Camar</b>, hasil baru tersimpan setelah siswa menekan tombol selesai di layar penutup.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================================================
+     4. PAPAN PERTANYAAN
+     ======================================================== -->
+<section class="panel" id="p-tanya" aria-labelledby="h-tanya">
+  <div class="panelhead">
+    <div>
+      <h2 class="h" id="h-tanya">Papan pertanyaan</h2>
+      <p class="lede">Pertanyaan yang dikirim siswa lewat tombol "Ask a question". Terbaca dari perangkat yang sama; diperbarui sendiri tiap dua detik.</p>
+    </div>
+    <div class="panelhead__act">
+      <button class="btn btn--ghost btn--sm" id="btnMuatTanya" type="button">Muat ulang</button>
+      <button class="btn btn--danger btn--sm" id="btnHapusTanya" type="button">Kosongkan papan</button>
+    </div>
+  </div>
+
+  <div class="filterbar">
+    <label class="chk"><input type="checkbox" id="chkBelum"> Tampilkan hanya yang belum dijawab</label>
+  </div>
+
+  <div id="daftarTanya"></div>
+</section>
+
+<!-- ========================================================
+     5. REKAP NILAI
+     ======================================================== -->
+<section class="panel" id="p-rekap" aria-labelledby="h-rekap">
+  <div class="panelhead">
+    <div>
+      <h2 class="h" id="h-rekap">Rekap nilai</h2>
+      <p class="lede">Tempel kode hasil dari layar siswa, atau ambil langsung dari perangkat ini. Data rekap tersimpan di peramban panel ini — ekspor CSV setelah kelas usai.</p>
+    </div>
+    <div class="panelhead__act">
+      <button class="btn btn--ghost btn--sm" id="btnCsv" type="button">Ekspor CSV</button>
+      <button class="btn btn--ghost btn--sm" id="btnJsonOut" type="button">Ekspor JSON</button>
+      <button class="btn btn--ghost btn--sm" id="btnJsonIn" type="button">Impor JSON</button>
+      <button class="btn btn--ghost btn--sm" id="btnCetakRekap" type="button">Cetak</button>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="col col--wide">
+      <div class="card">
+        <h3>Tempel kode hasil</h3>
+        <p class="note">Satu kode per baris — beberapa siswa boleh sekaligus. Kode dibuat oleh tombol "Salin kode hasil" di layar hasil Nusa Selatan.</p>
+        <textarea class="field field--area" id="inKode" rows="4" placeholder="eyJ2IjoxLCJuYW1lIjoi… (tempel di sini)"></textarea>
+        <div class="rowbtn">
+          <button class="btn btn--solid btn--sm" id="btnBacaKode" type="button">Baca kode</button>
+          <button class="btn btn--ghost btn--sm" id="btnAmbilPerangkat" type="button">Ambil dari perangkat ini</button>
+          <button class="btn btn--ghost btn--sm" id="btnManual" type="button">Tambah manual</button>
+        </div>
+        <p class="note" id="kodeNote"></p>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card">
+        <h3>Ringkasan</h3>
+        <dl class="kv kv--stat" id="kvRekap"></dl>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card__head">
+      <h3>Daftar siswa</h3>
+      <input class="field field--sm" id="cariSiswa" type="search" placeholder="Cari nama atau kelas">
+    </div>
+    <div class="scroll-x">
+      <table class="tbl tbl--rekap" id="tblRekap"></table>
+    </div>
+    <p class="note" id="rekapNote"></p>
+  </div>
+</section>
+
+<!-- ========================================================
+     6. KUNCI JAWABAN
+     ======================================================== -->
+<section class="panel" id="p-kunci" aria-labelledby="h-kunci">
+  <div class="panelhead">
+    <div>
+      <h2 class="h" id="h-kunci">Kunci jawaban</h2>
+      <p class="lede" id="kunciLede"></p>
+    </div>
+    <div class="panelhead__act">
+      <button class="btn btn--ghost btn--sm" id="btnCetakKunci" type="button">Cetak</button>
+      <button class="btn btn--ghost btn--sm" id="btnSembunyi" type="button">Sembunyikan jawaban</button>
+    </div>
+  </div>
+
+  <div class="warn warn--calm">
+    Kunci ini dibangkitkan dari data di dalam modul siswa, jadi isinya persis sama dengan
+    yang dinilai di layar. Jangan ditampilkan di proyektor saat aktivitas berjalan.
+  </div>
+
+  <div id="daftarKunci"></div>
+</section>
+
+<!-- ========================================================
+     7. BANTUAN
+     ======================================================== -->
+<section class="panel" id="p-bantuan" aria-labelledby="h-bantuan">
+  <h2 class="h" id="h-bantuan">Bantuan</h2>
+
+  <div class="grid">
+    <div class="col col--wide">
+      <div class="card">
+        <h3>Cara memasang</h3>
+        <p>Panel ini harus berada di <b>alamat yang sama</b> dengan situs siswa. Penyimpanan peramban terikat pada satu asal (origin), jadi panel di alamat lain tidak akan melihat satu pun data siswa.</p>
+        <pre class="code">NarrativeLearn/
+  index.html            ← peta (level 1)
+  ocean-journey/        ← hub + 3 modul
+  lake-lembayung/       ← hub + 4 modul
+  teacher/              ← panel ini (pintu kedua)
+  shared/
+    teacher.js          ← kanal yang dibaca kedua sisi</pre>
+        <p>Jalankan lewat server statis apa pun. Contoh, dari dalam folder <code>NarrativeLearn/</code>:</p>
+        <pre class="code">python3 -m http.server 8000</pre>
+        <p>Lalu buka <code>http://localhost:8000/teacher/</code>. Membuka lewat <code>file://</code> juga bisa, asalkan situs siswa dibuka lewat <code>file://</code> yang sama — jangan campur.</p>
+      </div>
+
+      <div class="card">
+        <h3>Data yang dibaca dan ditulis panel ini</h3>
+        <table class="tbl">
+          <thead><tr><th>Kunci</th><th>Arah</th><th>Isi</th></tr></thead>
+          <tbody>
+            <tr><td><code>nl_student_v1</code></td><td>baca</td><td>Nama dan kelas siswa di perangkat ini.</td></tr>
+            <tr><td><code>nl_questions_v1</code></td><td>baca / hapus</td><td>Pertanyaan siswa ke guru.</td></tr>
+            <tr><td><code>nl_teacher_gate_v1</code></td><td>tulis</td><td>Sinyal gerbang: <code>wait-1</code>, <code>wait-2</code>, <code>lives</code>.</td></tr>
+            <tr><td><code>oj_barat_v1</code> … <code>lake_singha_v1</code></td><td>baca</td><td>Hasil ketujuh perjalanan.</td></tr>
+            <tr><td><code>nl_guru_sesi_v1</code></td><td>tulis</td><td>Sesi berjalan: kelas, langkah, centang.</td></tr>
+            <tr><td><code>nl_guru_rekap_v1</code></td><td>tulis</td><td>Daftar siswa dan nilainya.</td></tr>
+            <tr><td><code>nl_guru_pin_v1</code></td><td>tulis</td><td>PIN panel (kalau dipasang).</td></tr>
+            <tr><td><code>nl_guru_terjawab_v1</code></td><td>tulis</td><td>Penanda pertanyaan yang sudah dijawab.</td></tr>
+          </tbody>
+        </table>
+        <p class="note">Panel ini tidak pernah mengirim apa pun ke luar perangkat. Tidak ada server, tidak ada pelacak.</p>
+      </div>
+
+      <div class="card">
+        <h3>Batas yang perlu diketahui, dan cara menembusnya</h3>
+        <p><b>1. Sinyal gerbang tidak menyeberang perangkat.</b> Ini bukan kekurangan panel, melainkan sifat penyimpanan peramban. Untuk kendali sungguhan lintas perangkat dibutuhkan server kecil — misalnya satu berkas JSON yang dipanjat semua perangkat, atau WebSocket. Selama belum ada, aba-aba lisan sudah memadai: layar tunggu memang dirancang agar siswa menoleh ke guru.</p>
+        <p><b>2. Ketujuh modul memantau sinyal.</b> Dulu hanya Nusa Barat; sekarang pemantaunya ada di <code>shared/teacher.js</code>, dimuat tiap modul satu baris sesudah script-nya sendiri. Modul-modul lain tidak disunting — objek <code>Gate</code> dan <code>TeacherAPI</code> mereka dipanggil apa adanya dari kanal itu. Pemantau bawaan Nusa Barat dimatikan dari luar supaya satu sinyal tidak dikerjakan dua kali. Sinyal yang lebih tua daripada saat halaman siswa dimuat diabaikan, jadi siswa yang memuat ulang tidak melompati gerbangnya sendiri.</p>
+        <p><b>3. <code>DEV_MODE</code> masih menyala di ketujuh modul.</b> Selama <code>var DEV_MODE = true;</code>, gembok prasyarat dilewati dan tombol pelolos langkah tampil di layar siswa. Matikan sebelum dipakai menilai.</p>
+        <p><b>4. Berkas <code>shared/</code> sudah lengkap.</b> <code>tokens.css</code>, <code>shell.css</code>, <code>hub.css</code>, <code>progress.js</code>, <code>hub.js</code>, dan <code>teacher.js</code> semuanya ada, jadi peta dan kedua hub berjalan. Panel tetap menyediakan tautan langsung ke tiap modul di kartu modul, untuk saat kamu ingin melompat tanpa lewat peta.</p>
+        <p><b>5. Bukit Camar menyimpan hasil dengan bentuk berbeda.</b> <code>{score, outOf, chancesLeft}</code>, tanpa bintang dan tanpa <code>attempts</code>. Penyeragamnya ada di <code>shared/teacher.js</code> (<code>NLTeacher.normalHasil</code>), jadi tabel rekap tetap setara dan bentuk hasil hanya ditafsirkan di satu tempat.</p>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="card">
+        <h3>PIN panel</h3>
+        <p class="note">Penghalang ringan, bukan pengamanan. Siapa pun yang membuka berkas <code>kunci.js</code> lewat alamatnya tetap bisa membaca kunci jawaban.</p>
+        <label class="lbl" for="inPin">PIN baru</label>
+        <input class="field" id="inPin" type="text" inputmode="numeric" maxlength="12" placeholder="4–12 angka">
+        <div class="rowbtn">
+          <button class="btn btn--solid btn--sm" id="btnSetPin" type="button">Simpan PIN</button>
+          <button class="btn btn--ghost btn--sm" id="btnHapusPin" type="button">Lepas PIN</button>
+        </div>
+        <p class="note" id="pinNote"></p>
+      </div>
+
+      <div class="card">
+        <h3>Urutan tujuh perjalanan</h3>
+        <ol class="bul bul--num" id="urutanModul"></ol>
+      </div>
+
+      <div class="card">
+        <h3>Bersihkan data panel</h3>
+        <p class="note">Menghapus sesi, rekap, PIN, dan penanda pertanyaan terjawab. Progres siswa tidak ikut terhapus.</p>
+        <button class="btn btn--danger btn--sm" id="btnResetPanel" type="button">Hapus data panel</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<p class="toast" id="toast" role="status" aria-live="polite"></p>
+
+<!-- ================= DIALOG TAMBAH MANUAL ================= -->
+<div class="modal" id="modal" hidden>
+  <div class="modal__box" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <h3 id="modalTitle">Tambah siswa manual</h3>
+    <label class="lbl" for="mNama">Nama</label>
+    <input class="field" id="mNama" type="text" maxlength="60">
+    <label class="lbl" for="mKelas">Kelas</label>
+    <input class="field" id="mKelas" type="text" maxlength="40">
+    <label class="lbl" for="mModul">Perjalanan</label>
+    <select class="field" id="mModul"></select>
+    <label class="lbl" for="mSkor">Langkah selesai</label>
+    <input class="field" id="mSkor" type="number" min="0" step="0.5">
+    <label class="lbl" for="mNyawa">Nyawa tersisa</label>
+    <input class="field" id="mNyawa" type="number" min="0" max="7">
+    <div class="rowbtn">
+      <button class="btn btn--solid btn--sm" id="mSimpan" type="button">Simpan</button>
+      <button class="btn btn--ghost btn--sm" id="mBatal" type="button">Batal</button>
+    </div>
+  </div>
+</div>
+
+<!-- Kanal bersama, dimuat lebih dulu: data.js dan script.js keduanya
+     memakainya (alamat platform, bentuk hasil, kotak pertanyaan). -->
+<script src="../shared/teacher.js"></script>
+<script src="data.js"></script>
+<script src="kunci.js"></script>
+<script src="script.js"></script>
+</body>
+</html>

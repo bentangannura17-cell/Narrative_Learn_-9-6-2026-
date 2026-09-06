@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Muara Jati — The Lake of Lembayung | NarrativeLearn</title>
+<meta name="description" content="NarrativeLearn inferential level: watch the story of the Muara Jati emergency bridge, reorder the events, then test your inferential understanding.">
+<link rel="stylesheet" href="style_MuaraJati.css">
+</head>
+<body>
+
+<!-- ============================================================
+     LOCKED PAGE
+     ============================================================ -->
+<div id="lockedPage" class="locked" hidden>
+  <div class="locked-card">
+    <span class="eyebrow">Muara Jati</span>
+    <h1 class="locked-title">Not yet accessible</h1>
+    <hr class="rule">
+    <p class="locked-body">Finish and pass <em>Sunda Kelapa</em> first to unlock the Muara Jati emergency bridge.</p>
+    <a href="../index.html" class="btn btn-primary">Back to the hill map</a>
+  </div>
+</div>
+
+<!-- ============================================================
+     WELCOME 1 — tap anywhere
+     ============================================================ -->
+<div id="welcome1" class="welcome welcome-1" hidden>
+  <img class="welcome-bg" src="gambar/welcome-background.png" alt="" aria-hidden="true">
+  <div class="welcome-1-inner">
+    <p class="welcome-1-line-1">Hai, welcome to</p>
+    <h1 class="welcome-1-line-2">Narrative<span class="welcome-1-thin">Learn</span></h1>
+    <p class="welcome-1-line-3">Lake Lembayung · Muara Jati</p>
+  </div>
+  <p class="welcome-tap" aria-hidden="true">tap anywhere to begin</p>
+</div>
+
+<!-- ============================================================
+     WELCOME 2 — tap 1 shows the path, tap 2 starts
+     ============================================================ -->
+<div id="welcome2" class="welcome welcome-2" hidden>
+  <div class="welcome-2-plate plate" aria-hidden="true">
+    <img id="welcome2Image" src="gambar/welcome-2-decor.jpg" alt="">
+    <span class="plate-empty">Lesson image — gambar/welcome-2-decor.jpg</span>
+  </div>
+
+  <div class="welcome-2-body">
+    <div id="welcome2Intro" class="welcome-2-intro">
+      <span class="eyebrow">What you will learn</span>
+      <p>A flood breaks the only bridge to a small village. In this story, you will watch the people build a new one, piece by piece. You will learn to follow each step — what happens first, what happens next, and why.</p>
+      <hr class="rule">
+      <span class="eyebrow">Why it helps you</span>
+      <p>Every story hides small clues. Good readers learn to find them. This little skill will help you read any story better — in class, in books, and in life.</p>
+    </div>
+
+    <ol id="welcome2Roadmap" class="roadmap" hidden>
+      <li class="roadmap-step">
+        <span class="roadmap-num">01</span>
+        <span class="roadmap-label">Watch the video</span>
+        <span class="roadmap-hint">Meet the village and the people</span>
+      </li>
+      <li class="roadmap-step">
+        <span class="roadmap-num">02</span>
+        <span class="roadmap-label">Reorder the events</span>
+        <span class="roadmap-hint">Four sessions, easy to hard</span>
+      </li>
+      <li class="roadmap-step">
+        <span class="roadmap-num">03</span>
+        <span class="roadmap-label">Quiz</span>
+        <span class="roadmap-hint">Six questions about the story</span>
+      </li>
+      <li class="roadmap-step">
+        <span class="roadmap-num">04</span>
+        <span class="roadmap-label">Result</span>
+        <span class="roadmap-hint">Your ten steps, summed up</span>
+      </li>
+    </ol>
+  </div>
+
+  <p class="welcome-tap" id="welcome2Tap" aria-hidden="true">tap to see your path</p>
+</div>
+
+<!-- ============================================================
+     APP SHELL
+     ============================================================ -->
+<div id="appShell" class="shell" hidden>
+
+  <!-- ---------- NAVIGATOR: single row ---------- -->
+  <header id="nav" class="nav" role="navigation" aria-label="Main navigator">
+    <div class="nav-row">
+      <span class="nav-brand" id="navBrand">
+        <span class="nav-brand-full">NarrativeLearn</span>
+        <span class="nav-brand-short">NL</span>
+      </span>
+      <div class="nav-hearts" id="navHearts" role="img" aria-label="Lives remaining"></div>
+      <span aria-hidden="true"></span>
+      <div class="nav-actions">
+        <button type="button" id="navHome" class="nav-btn" aria-label="Home" title="Home">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+        </button>
+        <button type="button" id="navAsk" class="nav-btn" aria-label="Ask a question" title="Ask a question">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.2 9a2.9 2.9 0 0 1 5.6 1c0 2-2.8 2.3-2.8 4"/><path d="M12 17.4h.01"/></svg>
+        </button>
+        <button type="button" id="navCoach" class="nav-btn" aria-label="Coach mark" title="How this works">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5z"/></svg>
+        </button>
+        <button type="button" id="navBack" class="nav-btn" aria-label="Back" title="Back">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+        </button>
+      </div>
+      <span class="nav-student" id="navStudent">Student</span>
+    </div>
+    <div class="nav-progress" aria-hidden="true">
+      <span class="nav-progress-fill" id="navProgressFill"></span>
+    </div>
+  </header>
+
+  <!-- ---------- TEACHER GATE: waiting 1 / waiting 2 / out of lives ---------- -->
+  <div id="gate" class="gate" hidden>
+    <div class="gate-screen">
+      <span class="eyebrow gate-eyebrow" id="gateEyebrow">Wait for your teacher</span>
+      <p class="gate-caption" id="gateCaption">Please pay attention to your teacher and wait for further instructions.</p>
+      <span class="gate-dots" aria-hidden="true"><span></span><span></span><span></span></span>
+    </div>
+  </div>
+
+  <main class="stage" id="stage">
+
+    <!-- ---------- VIDEO ---------- -->
+    <section id="videoPage" class="page page-video" hidden>
+      <span class="eyebrow">Material · Video</span>
+      <h1 class="page-title">The bridge that reconnected Muara Jati</h1>
+      <hr class="rule">
+      <figure class="plate video-plate" id="videoPlate">
+        <video id="videoEl" class="video-el" src="video/muara-jati-video.mp4"
+               poster="video/muara-jati-poster.jpg" controls playsinline preload="metadata"></video>
+        <span class="plate-empty">Video — video/muara-jati-video.mp4</span>
+      </figure>
+      <p class="page-note">Press play when you are ready. Your teacher will let you continue once it ends.</p>
+    </section>
+
+    <!-- ---------- ACTIVITY INTRO: instructions for this session only ---------- -->
+    <section id="activityIntroPage" class="page page-activity-intro" hidden>
+      <div class="page-head">
+        <span class="eyebrow" id="actIntroLabel">Session 1 of 4 · Easy</span>
+        <div class="dots" id="actIntroDots" aria-hidden="true"></div>
+      </div>
+      <h1 class="page-title">Reorder the events</h1>
+      <hr class="rule">
+
+      <p class="act-prompt">Drag a row by its grip, or use the ▲▼ buttons, until the events run in the order they happened. Rows that are already right lock in place when you check.</p>
+
+      <button type="button" id="actIntroContinueBtn" class="btn btn-primary act-next">Start sorting</button>
+    </section>
+
+    <!-- ---------- ACTIVITY: reorder the events (interactive cards only) ---------- -->
+    <section id="activityPage" class="page page-activity" hidden>
+      <div class="page-head">
+        <span class="eyebrow" id="actLabel">Session 1 of 4 · Easy</span>
+        <div class="dots" id="actDots" aria-hidden="true"></div>
+      </div>
+      <h1 class="page-title">Reorder the events</h1>
+      <hr class="rule">
+
+      <ol class="cards" id="actCards"></ol>
+      <p class="page-note" id="actNote" hidden></p>
+
+      <div class="feedback" id="actFeedback" hidden></div>
+      <button type="button" id="actCheckBtn" class="btn btn-primary act-next">Check order</button>
+      <button type="button" id="actContinueBtn" class="btn btn-primary act-next" hidden>Continue</button>
+    </section>
+
+    <!-- ---------- QUIZ ---------- -->
+    <section id="quizPage" class="page page-quiz" hidden>
+      <div class="page-head">
+        <span class="eyebrow" id="quizLabel">Question 1 of 6</span>
+        <div class="dots" id="quizDots" aria-hidden="true"></div>
+      </div>
+      <h1 class="quiz-question" id="quizQuestion"></h1>
+      <hr class="rule">
+      <div class="options" id="quizOptions"></div>
+      <div class="feedback" id="quizFeedback" hidden></div>
+      <button type="button" id="quizNextBtn" class="btn btn-primary quiz-next" hidden>Next question</button>
+    </section>
+
+    <!-- ---------- RESULT ---------- -->
+    <section id="resultPage" class="page page-result" hidden>
+      <span class="eyebrow">Result</span>
+      <h1 class="page-title" id="resultTitle">Ten steps, done</h1>
+      <hr class="rule">
+
+      <dl class="scorecard" id="resultScore"></dl>
+
+      <h2 class="section-title">Step by step</h2>
+      <ol class="steplist" id="resultSteps"></ol>
+
+      <h2 class="section-title">Your quiz answers</h2>
+      <ol class="answerlist" id="resultAnswers"></ol>
+
+      <h2 class="section-title">What this lesson taught</h2>
+      <ul class="recap" id="resultRecap"></ul>
+
+      <a href="../index.html" class="btn btn-primary result-btn" id="resultBackBtn">Back to the hill map</a>
+    </section>
+
+  </main>
+
+  <!-- ---------- ASK A QUESTION ---------- -->
+  <div id="askPanel" class="dialog-wrap" hidden>
+    <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="askTitle">
+      <span class="eyebrow">To your teacher</span>
+      <h2 class="dialog-title" id="askTitle">Ask a question</h2>
+      <hr class="rule">
+      <label class="field">
+        <span>What would you like to ask?</span>
+        <textarea id="askText" class="input" rows="4" placeholder="I don't understand the instruction for…"></textarea>
+      </label>
+      <p class="dialog-note" id="askNote">Your teacher will see this on their own screen.</p>
+      <div class="dialog-actions">
+        <button type="button" id="askCancel" class="btn btn-ghost">Cancel</button>
+        <button type="button" id="askSend" class="btn btn-primary">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ---------- COACH MARK: spotlight + floating callout ---------- -->
+  <div id="coachOverlay" class="coach-overlay" hidden>
+    <div class="coach-hole" id="coachHole" aria-hidden="true"></div>
+    <div class="coach-callout" id="coachCallout" role="dialog" aria-modal="true" aria-label="How this works" tabindex="-1">
+      <span class="eyebrow" id="coachStep"></span>
+      <p class="coach-text" id="coachText"></p>
+      <div class="dialog-actions">
+        <button type="button" id="coachClose" class="btn btn-ghost">Close</button>
+        <button type="button" id="coachNext" class="btn btn-primary">Continue</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     HINT — instruksi ringkas di pojok kanan atas (Revisi R3).
+     Menggantikan coach mark di welcome-1, welcome-2, gerbang
+     tunggu, dan halaman video. Hilang sendiri setelah 3 detik,
+     atau langsung saat ditekan.
+
+     Catatan: sebelum revisi ini, instruksi untuk keempat layar
+     tersebut memang ada di objek COACH tapi TIDAK PERNAH sampai
+     ke siswa — #coachOverlay berada di dalam #appShell yang masih
+     tersembunyi di layar-layar itu. Hint inilah yang akhirnya
+     menyampaikannya.
+     ============================================================ -->
+<div id="hintHost" class="hint-host" aria-live="polite"></div>
+
+<!-- Potongan transisi sesaat sebelum masuk Video Page. Sejak Revisi R2
+     warnanya putih (--video-bg), bukan hitam — nama kelasnya sengaja
+     dipertahankan supaya JS yang merujuknya tidak perlu diubah. -->
+<div id="blackout" class="blackout" aria-hidden="true" hidden></div>
+<div id="transitionOverlay" class="transition" aria-hidden="true"></div>
+
+<!-- Zona swipe-back tak terlihat (tepi kiri & kanan, separuh bawah layar) -->
+<div class="swipe-zone swipe-zone-left" data-swipe="left" aria-hidden="true"></div>
+<div class="swipe-zone swipe-zone-right" data-swipe="right" aria-hidden="true"></div>
+
+<!-- Tombol back mengambang — selalu terjangkau, sejajar aksi Back di navigator -->
+<a href="../index.html" class="float-back" id="floatBack" aria-label="Back to the hill map">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+</a>
+
+<!-- ============================================================
+     ⚠️ MODE PENGEMBANG — HAPUS BLOK INI SEBELUM LAUNCHING
+     Cari komentar "MODE PENGEMBANG" yang sama di style_MuaraJati.css dan
+     script_MuaraJati.js, lalu hapus ketiganya sebelum rilis ke siswa.
+     ============================================================ -->
+<div id="devPanel" class="dev-panel" hidden>
+  <div class="dev-panel-inner">
+    <button type="button" id="devAnswer" class="dev-btn" title="Answer correctly (this step only)" aria-label="Pass the step currently shown">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+    </button>
+    <span class="dev-divider" aria-hidden="true"></span>
+    <button type="button" id="devCoachToggle" class="dev-btn" title="Turn automatic coach mark off" aria-label="Toggle automatic coach mark" aria-pressed="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5z"/></svg>
+    </button>
+  </div>
+</div>
+<div id="devTooltip" class="dev-tooltip" aria-hidden="true"></div>
+<!-- ====================== AKHIR MODE PENGEMBANG ====================== -->
+
+<script src="script_MuaraJati.js"></script>
+<!-- Kanal ke panel guru (teacher/index.html). Wajib SESUDAH script_MuaraJati.js:
+     berkas ini membaca TeacherAPI dan Gate yang baru ada setelah script itu jalan. -->
+<script src="../../shared/teacher.js"></script>
+</body>
+</html>

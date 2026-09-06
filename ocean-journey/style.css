@@ -1,0 +1,449 @@
+/* ============================================================
+   OCEAN JOURNEY — style.css
+   ------------------------------------------------------------
+   Pemandangan dari geladak kapal yang sedang MENUJU pesisir.
+   Rangka luarnya (tombol, menu, panel daftar, transisi antar
+   level) ada di shared/hub.css; berkas ini hanya mengurus
+   panggungnya.
+
+   Susunan kedalaman, dari paling jauh ke paling dekat:
+
+     langit + awan          bergerak paling lambat
+     punggungan & Bukit Camar
+     laut + tiga pulau      kecepatan sebenarnya
+     buih dekat lambung     bergerak paling cepat
+     kapal                  tidak bergerak sama sekali
+
+   Kapal tidak ikut tergulir karena kapal itulah tempat siswa
+   berdiri. Yang bergeser saat layar digeser adalah dunianya.
+   ============================================================ */
+
+:root{
+  /* Jumlah panel = jumlah kali layar bisa diperhentikan.
+     Lebar rel dihitung dari sini, jadi TEPAT tiga layar berapa
+     pun ukuran HP-nya. Angka ini juga dibaca script.js. */
+  --panel-n: 3;
+
+  /* Tinggi garis cakrawala, diukur dari atas layar. Di HP jangkung
+     cakrawala ditaruh agak tinggi supaya lautnya lapang; di layar
+     lebar diturunkan supaya langitnya tidak menghabiskan tempat. */
+  --horizon: 42%;
+
+  /* Tinggi geladak. Dipakai bersama oleh geladak itu sendiri DAN oleh
+     kaki tiang, supaya tiangnya menancap di geladak alih-alih
+     mengambang di atas air. */
+  --deck-h: min(23vh, 200px);
+
+  --air-1:#0a2f4c; --air-2:#175f81; --air-3:#3d94a8;
+  --air-4:#8ec6c2; --air-5:#f0c69a; --air-6:#f6dcb4;
+  --laut-1:#2c93a8; --laut-2:#15678c; --laut-3:#0a3a58; --laut-4:#062637;
+  --daun-1:#7cba8c; --daun-2:#3f8560; --daun-3:#22513c;
+  --pasir:#f0e2be;
+  --kayu-1:#6b4630; --kayu-2:#4a2f20; --kayu-3:#332015;
+  --kanvas:#f7f1e2;
+}
+
+@media (min-aspect-ratio: 3/4){  :root{ --horizon:48%; --deck-h:min(20vh,180px); } }
+@media (min-aspect-ratio: 13/10){ :root{ --horizon:54%; --deck-h:min(18vh,170px); } }
+
+/* ============================================================
+   PANGGUNG
+   ------------------------------------------------------------
+   .viewport = jendela selebar layar, yang bisa digeser.
+   .world    = isinya, selebar --panel-n kali layar.
+   ============================================================ */
+.viewport{
+  position:fixed; inset:0;
+  height:100vh; height:100dvh;
+  overflow-x:auto; overflow-y:hidden;
+  overscroll-behavior-x:contain;
+  -webkit-overflow-scrolling:touch;
+  scroll-snap-type:x mandatory;
+  scrollbar-width:none;
+  background:linear-gradient(to bottom,
+    var(--air-1) 0%, var(--air-2) 28%, var(--air-3) 46%,
+    var(--air-4) 62%, var(--air-5) 84%, var(--air-6) 100%);
+}
+.viewport::-webkit-scrollbar{ display:none; }
+
+.world{
+  position:relative;
+  width:calc(var(--panel-n) * 100%);
+  height:100%;
+  overflow:clip;                 /* lapis buih sengaja lebih lebar dari rel */
+}
+@supports not (overflow: clip){ .layer--surf{ width:100% !important; } }
+
+.layer{
+  position:absolute; top:0; left:0;
+  width:100%; height:100%;
+  pointer-events:none;           /* geseran & ketukan lewat begitu saja */
+}
+.layer--sky  { z-index:1; }
+.layer--ridge{ z-index:2; }
+.layer--isles{ z-index:3; }
+/* Buih dibuat lebih lebar dari rel: ia bergerak lebih cepat daripada
+   gulirnya, jadi kalau selebar rel saja, ujung kanannya akan masuk
+   layar sebagai celah kosong di perhentian terakhir. */
+.layer--surf { z-index:4; width:calc(100% + 100% / var(--panel-n)); }
+
+.layer--sky, .layer--ridge, .layer--surf{ will-change:transform; }
+
+/* Titik henti scroll-snap: satu strip selebar layar per panel. */
+.snap{
+  position:absolute; top:0; bottom:0;
+  width:calc(100% / var(--panel-n));
+  scroll-snap-align:start;
+  pointer-events:none;
+}
+.snap[data-stop="0"]{ left:0; }
+.snap[data-stop="1"]{ left:calc(100% / var(--panel-n)); }
+.snap[data-stop="2"]{ left:calc(200% / var(--panel-n)); }
+
+/* ============================================================
+   LANGIT
+   ============================================================ */
+.sun{
+  position:absolute;
+  left:78%; top:calc(var(--horizon) - 12%);
+  width:min(30vh, 190px); aspect-ratio:1;
+  transform:translate(-50%,-50%);
+  border-radius:50%;
+  background:radial-gradient(circle,
+    rgba(255,246,224,.95) 0%, rgba(255,224,176,.55) 34%,
+    rgba(255,206,150,.18) 62%, rgba(255,206,150,0) 78%);
+}
+
+.cloud{
+  position:absolute;
+  left:var(--x); top:var(--y);
+  width:calc(var(--s) * 30vh);
+  opacity:.5;
+  animation:hanyut var(--dur) linear infinite;
+}
+.cloud svg{ display:block; width:100%; height:auto; }
+.cloud path{ fill:#ffffff; }
+.cloud--b, .cloud--d{ opacity:.34; }
+
+/* Awan berjalan pelan ke kiri: kapal bergerak ke kanan, jadi dari
+   geladak semuanya tampak lewat ke arah sebaliknya. */
+@keyframes hanyut{
+  from{ transform:translateX(6vw); }
+  to  { transform:translateX(-46vw); }
+}
+
+.birds{
+  position:absolute; left:var(--x); top:var(--y);
+  width:14vh; opacity:.5;
+  animation:hanyut 168s linear infinite;
+}
+.birds svg{ display:block; width:100%; height:auto; }
+.birds path{ fill:none; stroke:#0d3247; stroke-width:2.4; stroke-linecap:round; opacity:.7; }
+
+/* ============================================================
+   DARATAN JAUH
+   ============================================================ */
+.ridge{
+  position:absolute; left:0;
+  top:var(--horizon);
+  width:100%; height:9vh;
+  transform:translateY(-100%);
+}
+.ridge__far{ fill:#5d87a0; opacity:.42; }
+
+
+/* ============================================================
+   LAUT
+   ============================================================ */
+.sea{
+  position:absolute; left:0; right:0;
+  top:var(--horizon); bottom:0;
+  background:linear-gradient(to bottom,
+    var(--laut-1) 0%, var(--laut-2) 24%, var(--laut-3) 62%, var(--laut-4) 100%);
+}
+/* Garis cakrawala tidak dibuat sebagai garis: kalau digambar tegas,
+   batas langit-laut jadi kaku. Yang dipakai gradien tipis yang
+   meluluhkan keduanya. */
+.sea::before{
+  content:""; position:absolute; left:0; right:0; top:0; height:7vh;
+  background:linear-gradient(to bottom, rgba(226,204,168,.26), rgba(226,204,168,0));
+}
+
+.glint{
+  position:absolute; left:0; right:0;
+  top:var(--horizon); height:38vh;
+  opacity:.16;
+}
+.glint svg{ display:block; width:100%; height:100%; }
+.glint ellipse{ fill:#eafaff; }
+.glint g{ animation:kilau 9s ease-in-out infinite alternate; }
+@keyframes kilau{ from{ opacity:.55 } to{ opacity:1 } }
+
+/* ============================================================
+   TIGA PULAU
+   ------------------------------------------------------------
+   Ketiganya duduk di garis cakrawala lalu diturunkan sedikit
+   (--tenggelam) supaya kakinya berada DI DALAM air, bukan
+   menempel di garisnya. Pulau yang lebih dekat dibuat lebih
+   besar dan lebih turun.
+   ============================================================ */
+/* Tingginya diikat ke lebar lewat aspect-ratio, bukan ditulis dalam vh.
+   Dengan preserveAspectRatio="meet", tinggi vh yang lebih besar dari
+   kebutuhan cuma jadi ruang kosong di atas gambar — di HP jangkung itu
+   membuat pulaunya menciut jadi pita tipis. */
+.isle{
+  position:absolute;
+  left:var(--x); top:var(--horizon);
+  width:var(--lebar); aspect-ratio:620 / 300;
+  transform:translate(-50%,-100%) translateY(var(--tenggelam));
+}
+.isle svg{ display:block; width:100%; height:100%; overflow:visible; }
+
+/* Makin dekat pulaunya, makin besar DAN makin turun di bawah cakrawala.
+   Nusa Barat sengaja lebih lebar dari satu panel: pulau yang sedang
+   dituju memang seharusnya tidak muat di layar. */
+.isle--selatan{ --lebar:min(62vw, 340px); --tenggelam:2.4vh; }
+.isle--timur  { --lebar:min(84vw, 460px); --tenggelam:4.4vh; }
+.isle--barat  { --lebar:min(116vw, 640px); --tenggelam:7.5vh; }
+
+/* ---------- Bukit Camar, di seberang selat ----------
+   Diposisikan persis seperti pulau supaya kakinya duduk di cakrawala,
+   tapi jauh lebih pucat: ia bukan tujuan hari ini, hanya bayangan
+   tempat berikutnya. */
+.camar{
+  position:absolute;
+  left:var(--x); top:var(--horizon);
+  width:min(46vw, 250px); aspect-ratio:320 / 190;
+  transform:translate(-50%,-100%);
+}
+.camar svg{ display:block; width:100%; height:100%; }
+.camar__body { fill:#5b87a2; opacity:.55; }
+.camar__ridge{ fill:none; stroke:#a8c8d8; stroke-width:3; opacity:.3; }
+.camar__label{
+  position:absolute; left:50%; bottom:calc(100% + .35em);
+  transform:translateX(-50%);
+  font-size:9.5px; letter-spacing:.2em; text-transform:uppercase;
+  color:#dff0f6; opacity:.42; white-space:nowrap;
+  text-shadow:0 1px 8px rgba(4,26,40,.75);
+}
+
+.isle__wash  { fill:#0c4a63; opacity:.34; }
+.isle__land  { fill:var(--daun-2); }
+.isle__peak,
+.isle__hill  { fill:var(--daun-1); opacity:.92; }
+.isle__hill2 { fill:var(--daun-1); opacity:.7; }
+.isle__rock  { fill:#5f7b88; }
+.isle__rock2 { fill:#3d545f; }
+.isle__ridge { fill:none; stroke:#cdeacf; stroke-width:3; opacity:.3; }
+.isle__beach { fill:none; stroke:var(--pasir); stroke-width:6; stroke-linecap:round; opacity:.85; }
+.isle__bay   { fill:#3fa2b8; opacity:.85; }
+.isle__trees path{ fill:var(--daun-3); opacity:.8; }
+.isle__huts  path{ fill:#7a4f34; opacity:.85; }
+.isle__mist  ellipse{ fill:#ffffff; opacity:.09; }
+
+/* Pulau yang jauh ikut memudar ke warna udara, bukan cuma mengecil —
+   jarak itu soal kabut, bukan cuma ukuran. */
+.isle--selatan svg{ opacity:.72; filter:saturate(.72); }
+.isle--timur   svg{ opacity:.86; filter:saturate(.86); }
+
+/* ============================================================
+   BUIH DEKAT LAMBUNG
+   ============================================================ */
+.surf{
+  position:absolute; left:0;
+  top:calc(var(--horizon) + 22vh); height:26vh; width:100%;
+}
+.surf__crest path{
+  fill:none; stroke:#dff2f7; stroke-width:5; stroke-linecap:round; opacity:.34;
+}
+.surf__crest{ animation:ombak 7s ease-in-out infinite alternate; }
+@keyframes ombak{
+  from{ transform:translate3d(0,0,0); }
+  to  { transform:translate3d(-3.2vw,1vh,0); }
+}
+
+/* ============================================================
+   KAPAL
+   ------------------------------------------------------------
+   Menempel di layar. Tiang dan layar di kanan karena kapal
+   berlayar ke kanan sementara pandangan menoleh ke kiri: dengan
+   begitu rigging membingkai pemandangan alih-alih menutupinya.
+   ============================================================ */
+.ship{
+  position:fixed; inset:0; z-index:10;
+  pointer-events:none;
+}
+.ship__bob{
+  position:absolute; inset:0;
+  animation:oleng 8.5s ease-in-out infinite alternate;
+  transform-origin:50% 100%;
+}
+/* Kapal terangguk pelan. Sudutnya sengaja kecil: cukup untuk
+   terasa hidup, tidak sampai membuat pusing saat dibaca lama. */
+@keyframes oleng{
+  from{ transform:translateY(0)    rotate(-.45deg); }
+  to  { transform:translateY(.6vh) rotate(.45deg);  }
+}
+
+/* ---------- Geladak ---------- */
+.ship__deck{
+  position:absolute; left:0; right:0; bottom:0;
+  height:var(--deck-h);
+  background:linear-gradient(to bottom, var(--kayu-1) 0%, var(--kayu-2) 62%, var(--kayu-3) 100%);
+}
+/* Garis papan. Dibuat dengan gradien berulang, bukan puluhan elemen —
+   di HP kelas bawah itu selisih yang terasa. */
+.ship__deck::after{
+  content:""; position:absolute; inset:14% 0 0;
+  background:repeating-linear-gradient(90deg,
+    rgba(0,0,0,.16) 0 1px, rgba(0,0,0,0) 1px 8.5%);
+  opacity:.5;
+}
+.deck__edge{
+  position:absolute; left:0; right:0; top:0;
+  width:100%; height:64%;
+}
+.deck__fill{ fill:var(--kayu-1); }
+.deck__rail{ fill:none; stroke:#96683f; stroke-width:14; stroke-linecap:round; }
+.deck__rope{ fill:none; stroke:#c9a071; stroke-width:6; opacity:.5; }
+.deck__coil{
+  position:absolute; left:18%; bottom:16%;
+  width:min(22vw, 108px); aspect-ratio:3 / 1;
+  border-radius:50%;
+  background:radial-gradient(ellipse at 50% 34%, #a9764f 0 42%, #8a5c3f 44% 100%);
+  box-shadow:0 3px 10px rgba(0,0,0,.35);
+}
+
+/* ---------- Tiang & layar ---------- */
+.ship__rig{
+  position:absolute; right:-3vw;
+  bottom:calc(var(--deck-h) - 3vh);
+  width:min(62vw, 330px); height:min(62vh, 560px);
+}
+.mast{ fill:var(--kayu-2); }
+.boom{ fill:var(--kayu-1); }
+.pennant{ fill:#e8604a; opacity:.9; transform-origin:96% 20%;
+  animation:berkibar 3.1s ease-in-out infinite alternate; }
+.rig__lines path{ fill:none; stroke:var(--kayu-3); stroke-width:2.6; opacity:.5; }
+
+.sail{ transform-origin:92% 8%; }
+.sail--back { fill:#dccdb2; opacity:.8; animation:berkibar 5.5s ease-in-out infinite alternate; }
+.sail--front{ fill:var(--kanvas);       animation:berkibar 5.5s ease-in-out infinite alternate; animation-delay:-.9s; }
+/* Layar terisi angin: perutnya menggembung lalu mengempis sedikit.
+   Digerakkan dengan transform, bukan dengan mengubah bentuk path,
+   supaya beban gambarnya tetap ringan di HP kelas bawah. */
+@keyframes berkibar{
+  from{ transform:scaleX(.95) skewY(1deg); }
+  to  { transform:scaleX(1.04) skewY(-1.3deg); }
+}
+
+/* ---------- Buih di sepanjang lambung ----------
+   Mengalir terus ke kiri tanpa disentuh: kapal ini memang sedang
+   berjalan, bukan berhenti menunggu jari. */
+.wake{
+  position:absolute; left:0; right:0;
+  bottom:calc(var(--deck-h) - .6vh);
+  height:5vh; overflow:hidden;
+}
+.wake span{
+  position:absolute; top:var(--t); left:100%;
+  width:var(--w); height:16%;
+  border-radius:999px;
+  background:linear-gradient(90deg, rgba(223,242,247,0), rgba(223,242,247,.34), rgba(223,242,247,0));
+  filter:blur(2px);
+  animation:menyusur var(--d) linear infinite;
+}
+@keyframes menyusur{
+  from{ transform:translateX(0); }
+  to  { transform:translateX(calc(-100vw - 100%)); }
+}
+
+/* ============================================================
+   TOMBOL MULAI
+   ------------------------------------------------------------
+   Satu per pulau, di TENGAH BAWAH layar. Yang tampil hanya milik
+   panel yang sedang di depan mata; sisanya menepi supaya tidak
+   ada dua tombol mulai di layar sekaligus.
+   ============================================================ */
+.dock{
+  position:fixed; z-index:20;
+  left:0; right:0;
+  bottom:calc(66px + var(--safe-b));
+  display:grid; justify-items:center;
+  padding:0 14px;
+  pointer-events:none;
+}
+.dock > *{ grid-area:1 / 1; }
+
+.dcard{
+  width:min(100%, 420px);
+  display:flex; align-items:center; gap:12px;
+  padding:11px 12px 11px 14px;
+  border-radius:var(--r-lg);
+  background:linear-gradient(150deg, rgba(10,58,88,.82), rgba(4,30,48,.9));
+  border:1px solid rgba(253,251,246,.26);
+  -webkit-backdrop-filter:blur(14px) saturate(1.2);
+  backdrop-filter:blur(14px) saturate(1.2);
+  box-shadow:var(--shadow-2);
+  opacity:0; transform:translateY(14px) scale(.97);
+  pointer-events:none;
+  transition:opacity .3s ease, transform .3s cubic-bezier(.22,.9,.28,1);
+}
+.dcard.is-active{ opacity:1; transform:none; pointer-events:auto; }
+.dcard:active{ transform:scale(.985); }
+
+.dcard__no{
+  width:34px; height:34px; flex:none;
+  display:grid; place-items:center;
+  border-radius:50%;
+  background:rgba(253,251,246,.14);
+  border:1px solid rgba(253,251,246,.28);
+  font-size:14px; font-weight:750;
+}
+.dcard__body{ display:flex; flex-direction:column; gap:1px; min-width:0; }
+.dcard__eyebrow{ font-size:10px; letter-spacing:.18em; text-transform:uppercase; opacity:.7; }
+.dcard__title{
+  font-size:clamp(16px,4.4vw,19px); font-weight:750; letter-spacing:-.015em; line-height:1.2;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.dcard__desc{ font-size:clamp(11px,3vw,12.5px); opacity:.76; line-height:1.35;
+  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+
+.dcard__go{
+  margin-left:auto; flex:none;
+  display:inline-flex; align-items:center; gap:6px;
+  min-height:38px; padding:0 14px;
+  border-radius:999px;
+  background:var(--paper); color:var(--ink);
+  font-size:13px; font-weight:750;
+  box-shadow:var(--shadow-1);
+}
+.ico{ width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:2.3;
+      stroke-linecap:round; stroke-linejoin:round; display:none; }
+.dcard .ico--go{ display:block; }
+
+.dcard.is-locked{
+  background:linear-gradient(150deg, rgba(46,58,76,.7), rgba(12,22,36,.88));
+  border-color:rgba(253,251,246,.14);
+}
+.dcard.is-locked .dcard__title{ opacity:.74; }
+.dcard.is-locked .dcard__go{ background:rgba(253,251,246,.14); color:var(--paper); box-shadow:none; }
+.dcard.is-locked .dcard__golabel{ display:none; }
+.dcard.is-locked .ico--go{ display:none; }
+.dcard.is-locked .ico--lock{ display:block; }
+
+.dcard.is-done .ico--go{ display:none; }
+.dcard.is-done .ico--done{ display:block; }
+.dcard.is-done .dcard__go{ background:var(--w-100); color:#08354f; }
+.dcard.is-done .dcard__golabel{ font-size:12px; }
+
+/* ============================================================
+   LAYAR SANGAT LEBAR
+   ------------------------------------------------------------
+   Kalau gulirnya jadi terlalu pendek untuk tiga perhentian yang
+   terpisah, tombol titik terasa rusak: ditekan tapi tidak pindah.
+   Lebih baik semua tombol mulai tampil sekaligus.
+   ============================================================ */
+.no-scroll .dock{ display:flex; justify-content:center; gap:12px; }
+.no-scroll .dcard{ opacity:1; transform:none; pointer-events:auto; width:min(31%, 340px); }
+.no-scroll .dcard__desc{ -webkit-line-clamp:3; }

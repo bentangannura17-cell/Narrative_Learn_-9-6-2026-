@@ -1,0 +1,1253 @@
+/* ============================================================
+   Singhasari — NarrativeLearn  (re-design)
+   /lake-lembayung/singhasari/
+   Template & token sama persis dengan modul Bukit Camar.
+
+   Gaya: editorial/klasik — dasar kertas hangat-netral, tinta
+   gelap, SATU aksen emas yang dipakai sebagai GARIS & GORESAN,
+   bukan bidang penuh. Tombol bergaris (outline), kartu bergaris
+   tipis, bayangan hampir tak terasa, foto dipasang seperti plat
+   di halaman buku (.plate). Tanpa CDN: font memakai tumpukan
+   serif sistem.
+
+   Struktur file:
+     1. Token
+     2. Dasar & elemen bersama (rule, eyebrow, btn, field, plate)
+     3. Locked page
+     4. Welcome 1 & 2
+     5. Navigator (dua tingkat)
+     6. Gate (review video & hati habis)
+     7. Story / material
+     8. Dialog (ask question, coach mark + spotlight)
+     9. Transisi & reduced-motion
+    10. MODE PENGEMBANG (hapus sebelum launching)
+   ============================================================ */
+
+/* ---------------- 1. Token ---------------- */
+:root {
+  --bg: #f3f2f2;
+  --surface: #faf9f8;
+  --surface-2: #eae9e9;
+  --ink: #201f1d;
+  --ink-2: #605d5d;
+  --ink-3: #7d7979;
+  --divider: rgba(32, 31, 29, 0.16);
+  --hairline: rgba(32, 31, 29, 0.28);
+
+  --accent: #b68235;
+  --accent-100: #fff3e4;
+  --accent-200: #ffe3bf;
+  --accent-600: #a06f24;
+  --accent-700: #7d5411;
+
+  --good: #4a6a3d;
+  --good-100: #eef1e8;
+  --bad: #97402f;
+  --bad-100: #f6ebe6;
+
+  --space-1: 4.6px;
+  --space-2: 9.2px;
+  --space-3: 13.8px;
+  --space-4: 18.4px;
+  --space-6: 27.6px;
+  --space-8: 36.8px;
+
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 7px;
+
+  --shadow-sm: 0 1px 2px rgba(45, 43, 43, 0.14);
+  --shadow-md: 0 3px 10px rgba(45, 43, 43, 0.16);
+  --shadow-lg: 0 12px 32px rgba(45, 43, 43, 0.22);
+
+  /* Cormorant Garamond / Lora tidak tersedia tanpa CDN — dua tumpukan
+     serif sistem yang berbeda cukup untuk menjaga pasangan judul/isi. */
+  --font-head: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+  --font-body: Georgia, "Times New Roman", "Liberation Serif", serif;
+
+  --measure: 62ch;
+  --nav-h: 88px;
+
+  /* Revisi R2: sesi video memakai latar putih murni — sengaja
+     dipisahkan dari --bg (#f3f2f2) supaya bidang di sekitar video
+     terbaca sebagai satu bidang bersih, bukan abu-abu kertas. */
+  --video-bg: #ffffff;
+}
+
+/* ---------------- 2. Dasar & elemen bersama ---------------- */
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+
+/* Revisi R5: penjaga terakhir terhadap luberan horizontal. Ini SENGAJA
+   `clip`, bukan `hidden`: `hidden` pada html/body mematikan
+   position:sticky di sebagian browser, dan navigator ini bergantung
+   padanya. Perbaikan sebenarnya ada di .nav-who/.nav-info di bawah —
+   baris ini hanya jaring, bukan pengganti.
+   Revisi R6: text-size-adjust dikunci supaya browser mobile tidak
+   menskalakan huruf sendiri (penyebab lain atribut terpotong). */
+html {
+  overflow-x: clip;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.68;
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+}
+
+h1, h2, h3 { font-family: var(--font-head); font-weight: 600; line-height: 1.16; margin: 0 0 var(--space-3); }
+p { margin: 0 0 var(--space-4); text-wrap: pretty; }
+a { color: var(--accent-700); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+a:hover { color: var(--accent-600); }
+button { font-family: inherit; color: inherit; }
+[hidden] { display: none !important; }
+img, svg { display: block; max-width: 100%; }
+::selection { background: var(--accent-200); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.rule { height: 0; border: 0; border-top: 1px solid var(--divider); margin: var(--space-4) 0; }
+
+.eyebrow {
+  display: block;
+  font-family: var(--font-head);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent-700);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 46px;
+  padding: var(--space-2) var(--space-6);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--accent);
+  background: transparent;
+  color: var(--accent-700);
+  font-family: var(--font-head);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.16s ease, border-color 0.16s ease, color 0.16s ease;
+}
+.btn:hover { background: rgba(182, 130, 53, 0.09); border-color: var(--accent-600); }
+.btn:active { background: rgba(182, 130, 53, 0.16); border-color: var(--accent-700); color: var(--accent-700); }
+.btn:disabled { opacity: 0.45; cursor: default; }
+.btn-ghost { border-color: transparent; color: var(--ink-2); }
+.btn-ghost:hover { background: rgba(32, 31, 29, 0.06); border-color: transparent; color: var(--ink); }
+
+.field { display: block; }
+.field > span {
+  display: block;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  margin-bottom: var(--space-2);
+}
+.input {
+  width: 100%;
+  padding: var(--space-3);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.6;
+  resize: vertical;
+}
+.input:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+
+/* Plat foto: mat tipis warna permukaan + garis rambut, sedikit
+   digradasi hangat supaya terasa seperti gambar sisipan buku. */
+.plate {
+  position: relative;
+  padding: 6px;
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  border-radius: var(--radius-sm);
+}
+.plate img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: sepia(0.12) saturate(0.92) contrast(1.02);
+}
+.plate-empty {
+  display: none;
+  position: absolute;
+  inset: 6px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--space-4);
+  text-align: center;
+  border: 1px dashed var(--hairline);
+  color: var(--ink-3);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+}
+.plate.is-empty .plate-empty { display: flex; }
+.plate.is-empty img { visibility: hidden; }
+
+/* ---------------- 3. Locked page ---------------- */
+.locked {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: var(--space-6);
+  background: var(--bg);
+}
+.locked-card {
+  max-width: 430px;
+  padding: var(--space-8) var(--space-6);
+  border: 1px solid var(--divider);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+.locked-title { font-size: 30px; font-weight: 400; margin-top: var(--space-2); }
+.locked-body { color: var(--ink-2); }
+
+/* ---------------- 4. Welcome 1 & 2 ---------------- */
+/* Revisi R6: height dipatok mati -> min-height, dan overflow:hidden
+   dilonggarkan. Paragraf pengantar Singhasari termasuk yang terpanjang
+   di proyek (menjelaskan level evaluatif), jadi di jendela pendek ia
+   paling sering terpotong diam-diam. */
+.welcome {
+  position: relative;
+  min-height: 100dvh;
+  cursor: pointer;
+  touch-action: manipulation;
+  background: var(--bg);
+}
+.welcome-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.4; }
+
+.welcome-1 { display: grid; grid-template-rows: 1fr auto; min-height: 100dvh; }
+.welcome-1-inner {
+  position: relative;
+  z-index: 1;
+  align-self: center;
+  padding: 0 var(--space-6) 12dvh;
+  text-align: center;
+}
+.welcome-1-line-1 {
+  margin: 0 0 var(--space-2);
+  font-family: var(--font-head);
+  font-size: 17px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+/* Revisi R6: batas bawah clamp diturunkan dari 44px ke 28px dan
+   koefisien vw dari 15 ke 10.5. Di 320px, 10.5vw = 33,6px sehingga
+   "NarrativeLearn" muat utuh dalam lebar baca yang tersisa. Batas
+   atas 76px tidak diubah, jadi tampilan desktop persis seperti
+   sekarang. break-word hanya jaring pengaman untuk font fallback
+   yang lebih lebar dari perkiraan. */
+.welcome-1-line-2 {
+  margin: 0;
+  font-size: clamp(28px, 10.5vw, 76px);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 1.06;
+  color: var(--ink);
+  max-width: 100%;
+  overflow-wrap: break-word;
+}
+.welcome-1-thin { font-style: italic; color: var(--accent-700); }
+.welcome-1-line-3 {
+  margin: var(--space-3) 0 0;
+  font-size: 15px;
+  letter-spacing: 0.04em;
+  color: var(--ink-2);
+}
+.welcome-1-inner::after {
+  content: "";
+  display: block;
+  width: 56px;
+  height: 1px;
+  margin: var(--space-6) auto 0;
+  background: var(--accent);
+}
+
+.welcome-tap {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  padding: 0 0 max(var(--space-6), env(safe-area-inset-bottom));
+  text-align: center;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  animation: pulse 2.6s ease-in-out infinite;
+}
+@keyframes pulse { 0%, 100% { opacity: 0.45; } 50% { opacity: 1; } }
+
+/* Revisi R6: min-height DAN max-height dipatok 100dvh. Tanpa max-height,
+   minmax(0,1fr) tetap boleh tumbuh melebihi layar (min-height hanya lantai,
+   bukan langit-langit), sehingga yang menggulir adalah SELURUH halaman dan
+   .welcome-2-body tidak pernah benar-benar memakai overflow-y:auto-nya.
+   Akibatnya isyarat "tap to continue" di baris ketiga ikut terdorong keluar
+   layar — padahal di layar inilah isyarat itu paling dibutuhkan. Dengan
+   kedua batas dipasang, yang menggulir hanya baris tengah, dan isyarat tap
+   tetap menempel di bawah. */
+.welcome-2 {
+  display: grid;
+  grid-template-rows: minmax(0, 22dvh) minmax(0, 1fr) auto;
+  min-height: 100dvh;
+  max-height: 100dvh;
+}
+.welcome-2-plate { border-left: 0; border-right: 0; border-top: 0; border-radius: 0; padding: 0; }
+.welcome-2-plate img { height: 22dvh; }
+.welcome-2-plate .plate-empty { inset: 0; border: 0; border-bottom: 1px solid var(--divider); }
+
+/* Revisi R6: isi welcome-2 kini boleh digulir alih-alih dipotong diam-diam.
+   Konsekuensinya ditangani di script_Singhasari.js (onTap): gerakan gulir tidak boleh
+   terbaca sebagai "tap untuk lanjut". */
+.welcome-2-body {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: var(--space-6) var(--space-6) var(--space-4);
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+}
+.welcome-2-intro p { margin: var(--space-3) 0 0; color: var(--ink-2); text-align: justify; hyphens: auto; }
+
+.roadmap {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-3);
+  transform: translateX(24px);
+  opacity: 0;
+  transition: transform 0.55s ease, opacity 0.55s ease;
+}
+.roadmap.is-visible { transform: translateX(0); opacity: 1; }
+.roadmap-step {
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  grid-template-areas: "num label" "num hint";
+  align-items: baseline;
+  column-gap: var(--space-3);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--divider);
+}
+.roadmap-num {
+  grid-area: num;
+  align-self: start;
+  font-family: var(--font-head);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
+.roadmap-label { grid-area: label; font-family: var(--font-head); font-size: 18px; }
+.roadmap-hint { grid-area: hint; font-size: 13px; color: var(--ink-3); }
+
+/* ---------------- 5. Navigator (dua tingkat) ---------------- */
+.shell { min-height: 100dvh; }
+
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  min-height: var(--nav-h);
+  background: var(--bg);
+  border-bottom: 1px solid var(--divider);
+  padding: 0 var(--space-4);
+}
+.nav-tier { display: flex; align-items: center; gap: var(--space-3); }
+.nav-tier-1 { display: grid; grid-template-columns: auto 1fr auto; padding: 8px 0 6px; }
+.nav-tier-2 { padding: 0 0 6px; }
+
+/* Elemen chrome navigator memakai line-height ringkas milik sendiri,
+   bukan warisan body { line-height: 1.68 } yang dirancang untuk paragraf bacaan.
+   Revisi R5: .nav-info dikeluarkan dari grup ini — line-height-nya kini ikut
+   dalam satu definisi utuh di bawah (dulu .nav-info dideklarasikan dua kali
+   di berkas ini, di sini dan sekali lagi lengkap; keduanya sudah digabung). */
+.nav-brand,
+.nav-student {
+  line-height: 1.2;
+}
+
+.nav-brand {
+  font-family: var(--font-head);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.nav-hearts { display: flex; align-items: center; justify-content: center; gap: 3px; }
+.nav-heart { width: 12px; height: 12px; flex: none; }
+.nav-heart svg { width: 100%; height: 100%; }
+.nav-heart.is-full { color: var(--accent); }
+.nav-heart.is-broken { color: var(--divider); }
+
+/* Revisi R5: min-width:96px dan flex:none dicabut. Keduanya memaksa
+   kolom kanan mempertahankan lebarnya walau viewport menyempit,
+   sehingga .nav-tier-1 meluber dan meninggalkan pita kosong di kanan.
+   min-width:0 mengizinkan kolom menyusut. Pola dari Bukit Camar.
+
+   padding-bottom menyediakan pita tinggi untuk .nav-info yang kini
+   melayang (position:absolute) di dalam kotak ini. Ruangnya sengaja
+   DIPESAN di sini, bukan dibiarkan lencana itu menumpuk ke tingkat
+   kedua navigator: .nav-tier-1 hanya berjarak 6px dari .nav-tier-2,
+   dan keduanya sama-sama rata kanan, jadi lencana yang benar-benar
+   keluar dari aliran akan mendarat persis di atas tombol-tombol
+   .nav-actions. Tinggi total .nav-who tetap sama seperti sebelum
+   revisi, jadi tinggi navigator tidak berubah. */
+.nav-who {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-self: end;
+  min-width: 0;
+  padding-bottom: 15px;
+}
+.nav-student {
+  font-family: var(--font-head);
+  font-size: 14px;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 40vw;   /* Revisi R5: nama siswa panjang tidak lagi mendorong navigator melebar */
+}
+
+/* Revisi R5: dua definisi .nav-info yang terpisah digabung jadi satu.
+   Lebih penting: .nav-info dulu baris kedua permanen di bawah nama
+   siswa, dan karena isinya berputar (label stage, hitungan langkah,
+   sisa nyawa) ia menuntut lebar sendiri — jauh melampaui min-width
+   96px yang dikira cukup. Sekarang ia keluar dari aliran, jadi tidak
+   pernah lagi ikut menentukan lebar navigator; ruang tingginya sudah
+   dipesan lewat padding-bottom .nav-who di atas.
+   Animasi fade .is-fading tetap bekerja. */
+.nav-info {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  max-width: 46vw;
+  line-height: 1.2;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.nav-info.is-fading { opacity: 0; }
+
+.nav-progress { flex: 1 1 auto; height: 1px; background: var(--divider); }
+.nav-progress-fill { display: block; width: 0; height: 1px; background: var(--accent); transition: width 0.5s ease; }
+
+/* Tambahan T2: jarak antar tombol dinaikkan dari var(--space-1) (4,6px)
+   ke var(--space-3) (13,8px). Nilai ini dipilih, bukan var(--space-2)
+   seperti usulan awal, karena tujuan T2 adalah area sentuh 44px yang
+   TIDAK bertumpang tindih: dengan kotak ikon 34px, jarak 9,2px masih
+   menyisakan tumpang tindih 0,8px — dan di layar <=359px, saat ikon
+   menyusut ke 32px (Revisi R5), tumpang tindihnya jadi 2,8px. 13,8px
+   aman di kedua ukuran (34+13,8 = 47,8 dan 32+13,8 = 45,8). */
+.nav-actions { display: flex; align-items: center; gap: var(--space-3); }
+
+/* Tambahan T2: kotak ikon tetap 34px secara visual, tetapi area
+   sentuhnya diperluas jadi 44px lewat pseudo-element. Cara ini
+   dipilih supaya tinggi navigator tidak bertambah. */
+.nav-btn::after {
+  content: "";
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 44px; height: 44px;
+}
+.nav-btn {
+  position: relative;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--ink-2);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.nav-btn svg { width: 19px; height: 19px; }
+.nav-btn:hover { background: rgba(182, 130, 53, 0.1); color: var(--accent-700); border-color: var(--divider); }
+.nav-btn:active { background: rgba(182, 130, 53, 0.18); color: var(--accent-700); }
+.nav-btn.is-on { color: var(--accent-700); border-color: var(--accent); }
+.nav-btn:disabled { opacity: 0.35; cursor: default; pointer-events: none; }
+
+/* ---------------- 6. Gate: tunggu guru & nyawa habis ---------------- */
+.gate {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: #16151400;
+  background: #161514;
+  color: #f3f2f2;
+  animation: fade 0.3s ease;
+}
+.gate-screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  padding: var(--space-8);
+  text-align: center;
+}
+.gate-eyebrow { color: var(--accent-200); }
+.gate-caption { margin: 0; max-width: 34ch; font-size: 19px; line-height: 1.6; }
+.gate-caption-dim { color: rgba(243, 242, 242, 0.6); font-size: 14px; }
+/* Revisi R2: .gate-video dan .gate-video-el adalah SISA POLA LAMA —
+   tidak ada satu pun rujukan ke keduanya di index_Singhasari.html
+   maupun script_Singhasari.js
+   (sudah diperiksa dengan grep). Sengaja tidak dihapus tanpa konfirmasi
+   pemilik proyek; tandai saja supaya tidak dikira masih terpakai.
+   .gate sendiri TETAP GELAP: kontras itu yang menandai "berhenti,
+   lihat guru", jadi jangan ikut diputihkan bersama sesi video. */
+.gate-video {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: var(--space-4);
+}
+.gate-video-el { max-width: 100%; max-height: 100%; background: #000; border: 1px solid rgba(243, 242, 242, 0.18); }
+
+
+/* ---------------- 7. Halaman (video, activity, quiz, result) ---------------- */
+.stage { max-width: 680px; margin: 0 auto; padding: var(--space-6) var(--space-4) var(--space-8); }
+.page-title { font-size: clamp(26px, 7vw, 36px); font-weight: 400; margin: var(--space-2) 0 0; }
+.page-note { margin: var(--space-4) 0 0; font-size: 14px; color: var(--ink-3); }
+.section-title {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin: var(--space-8) 0 var(--space-3);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--divider);
+}
+
+.page-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); }
+.dots { display: flex; align-items: center; gap: 5px; }
+.dot { width: 5px; height: 5px; border-radius: 50%; border: 1px solid var(--accent); }
+.dot.is-done { background: var(--accent); }
+.dot.is-now { width: 7px; height: 7px; background: var(--accent-200); }
+
+.video-plate { margin: var(--space-4) 0 0; aspect-ratio: 16 / 9; }
+.video-el { width: 100%; height: 100%; background: var(--video-bg); object-fit: contain; }
+
+/* Revisi R2: seluruh bidang halaman video ikut putih, dibentangkan
+   ke tepi layar sementara isinya tetap dalam ukuran baca .stage.
+   margin-inline negatif membatalkan padding .stage, padding-inline
+   mengembalikan lebar bacanya. */
+.page-video {
+  background: var(--video-bg);
+  margin-inline: calc(50% - 50vw);
+  padding-inline: max(var(--space-4), calc(50vw - 340px));
+  padding-block: var(--space-6);
+}
+.page-video .video-plate { background: var(--video-bg); border-color: var(--divider); }
+
+
+/* Kuis */
+.quiz-question { font-size: clamp(21px, 5.6vw, 27px); font-weight: 400; margin: var(--space-3) 0 0; }
+.options { display: grid; gap: var(--space-2); margin: var(--space-4) 0 0; }
+.option {
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  align-items: baseline;
+  gap: var(--space-2);
+  width: 100%;
+  min-height: 48px;
+  padding: var(--space-3);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-md);
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.5;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+.option-key { font-family: var(--font-head); color: var(--accent); }
+.option:hover:not(:disabled) { border-color: var(--accent); background: var(--accent-100); }
+.option:disabled { cursor: default; }
+.option.is-correct { border-color: var(--good); background: var(--good-100); color: var(--good); }
+.option.is-wrong { border-color: var(--bad); background: var(--bad-100); color: var(--bad); }
+.quiz-next { width: 100%; margin-top: var(--space-4); }
+
+/* Hasil */
+.steplist, .answerlist { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-2); }
+.step-item {
+  display: grid;
+  grid-template-columns: 26px 1fr auto;
+  align-items: baseline;
+  gap: var(--space-2);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--divider);
+  font-size: 14px;
+}
+.step-item span:first-child { font-family: var(--font-head); font-variant-numeric: tabular-nums; color: var(--accent); }
+.step-mark { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; }
+.step-mark.is-good { color: var(--good); }
+.step-mark.is-bad { color: var(--bad); }
+.answer-item { padding-bottom: var(--space-3); border-bottom: 1px solid var(--divider); font-size: 14px; }
+.answer-item p { margin: 0 0 var(--space-1); }
+.answer-q { font-family: var(--font-head); font-size: 16px; }
+.answer-yours { color: var(--ink-2); }
+.answer-yours em { font-style: italic; }
+.answer-right { color: var(--good); }
+.recap { margin: 0; padding: 0 0 0 var(--space-4); display: grid; gap: var(--space-3); font-size: 14px; color: var(--ink-2); }
+.recap li::marker { color: var(--accent); }
+.result-btn { width: 100%; margin-top: var(--space-6); }
+
+/* Gate: tiga titik menunggu */
+.gate-dots { display: flex; gap: 6px; }
+.gate-dots span {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(243, 242, 242, 0.5);
+  animation: gateDot 1.4s ease-in-out infinite;
+}
+.gate-dots span:nth-child(2) { animation-delay: 0.2s; }
+.gate-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes gateDot { 0%, 100% { opacity: 0.25; } 50% { opacity: 1; } }
+
+/* Potongan transisi sebelum video — sejak Revisi R2 warnanya putih.
+   Nama .blackout dipertahankan supaya HTML dan objek Blackout di JS
+   tidak perlu diubah, tetapi warnanya kini mengikuti sesi video. */
+.blackout { position: fixed; inset: 0; z-index: 800; background: var(--video-bg); }
+
+/* Swipe-back: dua zona tak terlihat di tepi kiri & kanan, separuh bawah */
+.swipe-zone { position: fixed; bottom: 0; width: 26px; height: 50dvh; z-index: 15; }
+.swipe-zone-left { left: 0; }
+.swipe-zone-right { right: 0; }
+
+/* Tombol back mengambang — garis rambut, sunyi, ikut sembunyi saat gerbang guru atau welcome tampil */
+.float-back {
+  position: fixed;
+  left: var(--space-3);
+  bottom: var(--space-6);
+  z-index: 25;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--divider);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--ink-2);
+  box-shadow: var(--shadow-sm);
+  transition: opacity 0.2s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.float-back svg { width: 18px; height: 18px; }
+.float-back:hover { color: var(--accent-700); border-color: var(--accent); }
+.float-back.is-hidden { opacity: 0; pointer-events: none; }
+
+@media (min-width: 768px) {
+  .stage { max-width: 760px; padding: var(--space-8) var(--space-6) var(--space-8); }
+  .float-back { left: var(--space-6); bottom: var(--space-6); }
+}
+
+.feedback {
+  margin: 0 0 var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--divider);
+  border-left: 2px solid var(--ink-3);
+  border-radius: var(--radius-sm);
+  font-size: 15px;
+  line-height: 1.6;
+  animation: rise 0.22s ease;
+}
+.feedback.is-good { border-left-color: var(--good); background: var(--good-100); color: #2f4726; }
+.feedback.is-bad { border-left-color: var(--bad); background: var(--bad-100); color: #6d2e21; }
+
+.scorecard { margin: 0 0 var(--space-2); display: grid; gap: var(--space-2); }
+.scorecard div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--divider);
+}
+.scorecard dt { white-space: nowrap; font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); }
+.scorecard dd { margin: 0; font-family: var(--font-head); font-size: 20px; font-variant-numeric: tabular-nums; }
+
+/* ---------------- 8. Dialog ---------------- */
+.dialog-wrap {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  padding: var(--space-4);
+  background: rgba(22, 21, 20, 0.55);
+  animation: fade 0.2s ease;
+}
+.dialog {
+  width: 100%;
+  max-width: 420px;
+  padding: var(--space-6);
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  animation: rise 0.24s ease;
+}
+.dialog-title { font-size: 24px; font-weight: 400; margin: var(--space-2) 0 0; }
+.dialog-body { margin: 0; color: var(--ink-2); }
+.dialog-note { margin: var(--space-2) 0 0; font-size: 12px; color: var(--ink-3); }
+.dialog-actions { display: flex; justify-content: flex-end; gap: var(--space-2); margin-top: var(--space-4); }
+
+/* Coach mark — mode spotlight: menyorot elemen nyata di layar, bukan
+   hanya teks di tengah. #coachWrap dipakai untuk kedua mode (lihat
+   script_Singhasari.js Coach.render()): tanpa .is-spotlight ia berperilaku persis
+   seperti .dialog-wrap biasa (overlay rata + dialog di tengah, dipakai
+   untuk langkah yang tidak merujuk elemen spesifik); dengan .is-spotlight,
+   overlay rata digantikan 4 div cutout + cincin aksen di sekitar target,
+   dan kotak keterangan (.coach-callout, kelas kedua di elemen .dialog yang
+   sama) pindah ke posisi tetap dekat target lewat top/left yang diatur JS. */
+.coach-wrap.is-spotlight { background: transparent; }
+
+.coach-cutout,
+.coach-ring,
+.coach-callout-arrow { display: none; }
+
+.coach-wrap.is-spotlight .coach-cutout,
+.coach-wrap.is-spotlight .coach-ring,
+.coach-wrap.is-spotlight .coach-callout-arrow { display: block; }
+
+.coach-cutout {
+  position: fixed;
+  background: rgba(22, 21, 20, 0.55);
+}
+.coach-ring {
+  position: fixed;
+  border: 2px solid var(--accent);
+  border-radius: var(--radius-md);
+  box-shadow: 0 0 0 4px rgba(182, 130, 53, 0.16);
+  pointer-events: none;
+}
+
+.coach-wrap.is-spotlight .coach-callout {
+  position: fixed;
+  width: min(300px, calc(100vw - 24px));
+  margin: 0;
+}
+.coach-callout-arrow,
+.coach-callout-arrow::after {
+  position: absolute;
+  width: 0;
+  height: 0;
+  border: 7px solid transparent;
+}
+.coach-callout-arrow::after { content: ""; left: -7px; border-width: 6px; }
+.coach-callout-arrow.is-up { top: -14px; border-bottom-color: var(--divider); }
+.coach-callout-arrow.is-up::after { top: 1px; border-bottom-color: var(--surface); }
+.coach-callout-arrow.is-down { bottom: -14px; border-top-color: var(--divider); }
+.coach-callout-arrow.is-down::after { bottom: 1px; border-top-color: var(--surface); }
+
+/* ---------------- Hint: instruksi ringkas pojok kanan atas (Revisi R3) ----------------
+   z-index 150 dipilih dengan sengaja: di atas .gate (100) dan .nav (20)
+   supaya instruksi tetap terlihat di layar tunggu, tetapi di bawah
+   coach mark (200) dan di bawah .blackout (800) / .transition (900)
+   supaya tidak pernah mengambang di atas potongan transisi. */
+.hint-host {
+  position: fixed;
+  top: max(var(--space-3), env(safe-area-inset-top));
+  right: max(var(--space-3), env(safe-area-inset-right));
+  z-index: 150;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-2);
+  max-width: min(300px, calc(100vw - var(--space-8)));
+  pointer-events: none;
+}
+
+.hint {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 7px var(--space-3) 7px var(--space-2);
+  border: 1px solid var(--divider);
+  border-radius: 999px;
+  background: var(--surface);
+  box-shadow: var(--shadow-md);
+  color: var(--ink-2);
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.35;
+  text-align: left;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+.hint::before {
+  content: "";
+  flex: none;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.hint.is-in { opacity: 1; transform: translateY(0); }
+
+/* Revisi R3: pil yang sedang pergi DIKELUARKAN dari aliran. Tanpa ini,
+   hint lama masih memakan satu baris selama 260ms animasi keluarnya,
+   sehingga hint pengganti muncul DI BAWAHNYA — persis penumpukan yang
+   ingin dicegah saat siswa berpindah layar dengan cepat (welcome-2 ke
+   gerbang tunggu terjadi dalam satu ketukan). Dengan position:absolute
+   keduanya berbagi tempat yang sama dan hasilnya jadi silang-pudar. */
+.hint.is-out {
+  opacity: 0;
+  transform: translateY(-6px);
+  position: absolute;
+  top: 0;
+  right: 0;
+  pointer-events: none;
+}
+
+/* Di atas gerbang gelap (#gate), pil putih terlalu menyilaukan. */
+.hint.is-on-dark {
+  background: rgba(32, 31, 29, 0.92);
+  border-color: rgba(243, 242, 242, 0.24);
+  color: #f3f2f2;
+}
+.hint.is-on-dark::before { background: var(--accent-200); }
+
+@media (min-width: 768px) {
+  .hint { font-size: 14px; padding: 9px var(--space-4) 9px var(--space-3); }
+  .hint-host { max-width: 360px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hint { transition: opacity 0.01ms; transform: none; }
+  .hint.is-in, .hint.is-out { transform: none; }
+}
+
+/* ---------------- 9. Transisi ---------------- */
+.transition {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  background: var(--bg);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s ease;
+}
+.transition.is-active { opacity: 1; pointer-events: all; }
+
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ---------------- Laptop ke atas ---------------- */
+@media (min-width: 768px) {
+  body { font-size: 17px; }
+  .nav { padding: 0 var(--space-6); }
+  .nav-tier-1 { padding: 12px 0 8px; }
+  .nav-heart { width: 14px; height: 14px; }
+  .welcome-2 { grid-template-rows: 26dvh 1fr auto; }
+  .welcome-2-plate img { height: 26dvh; }
+  .roadmap { grid-template-columns: repeat(2, 1fr); gap: var(--space-4) var(--space-8); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ============================================================
+   ⚠️ MODE PENGEMBANG — HAPUS BLOK INI SEBELUM LAUNCHING
+   Sengaja tidak senada dengan token di atas supaya jelas ini
+   alat sementara, bukan bagian produk akhir.
+   ============================================================ */
+.dev-panel {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px;
+  border-radius: 14px;
+  background: rgba(18, 18, 16, 0.32);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35);
+  cursor: grab;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.dev-panel.is-dragging { cursor: grabbing; }
+.dev-btn {
+  width: 44px;
+  height: 44px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: 50%;
+  background: #3f6b34;
+  color: #fff;
+  cursor: pointer;
+}
+.dev-btn svg { width: 20px; height: 20px; }
+.dev-btn.is-empty { background: #888; }
+/* Tombol kedua (poin #4) — biru saat auto coach mark aktif (default),
+   abu saat dimatikan lewat toggle ini. Warna beda dari tombol pass-step
+   di sebelahnya supaya statusnya kebaca sekilas tanpa perlu menebak. */
+.dev-btn-coach { background: #6b6b68; }
+.dev-btn-coach.is-on { background: #2f5f86; }
+.dev-tooltip {
+  position: fixed;
+  z-index: 1001;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease;
+  padding: 4px 10px;
+  border-radius: var(--radius-md);
+  background: #3f6b34;
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: 12px;
+  white-space: nowrap;
+}
+.dev-tooltip.is-visible { opacity: 1; }
+.dev-panel.is-dragging ~ .dev-tooltip { opacity: 0; }
+@media (min-width: 768px) {
+  .dev-panel { top: auto; left: auto; bottom: 16px; left: 16px; }
+}
+/* ====================== AKHIR MODE PENGEMBANG ====================== */
+
+/* ---------------- Teks cerita & kata yang bisa diklik ---------------- */
+.story-text { font-size: 17px; line-height: 1.85; margin-top: var(--space-4); }
+.story-text p {
+  margin: 0 0 var(--space-6);
+  text-align: justify;
+  text-align-last: left;
+  hyphens: auto;
+}
+.story-text p:last-child { margin-bottom: 0; }
+
+.token {
+  display: inline;
+  cursor: pointer;
+  padding: 0 1px;
+  border-bottom: 1px dashed var(--accent);
+  background: none;
+  border-left: 0;
+  border-right: 0;
+  border-top: 0;
+  font: inherit;
+  color: inherit;
+  transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+}
+.token:hover { background: var(--accent-100); }
+.token.is-found { background: var(--good-100); color: var(--good); border-bottom: 1px solid var(--good); font-style: italic; }
+.token.is-missed { border-bottom-color: var(--bad); color: var(--bad); }
+.token.is-shake { animation: shake 0.32s ease; }
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-3px); }
+  75% { transform: translateX(3px); }
+}
+.story-text.is-locked .token { cursor: default; border-bottom-style: solid; border-bottom-color: var(--divider); }
+
+.found-list { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: 0 0 var(--space-3); }
+.found-chip {
+  font-size: 13px;
+  font-style: italic;
+  padding: 3px var(--space-2);
+  border: 1px solid var(--good);
+  border-radius: var(--radius-md);
+  color: var(--good);
+}
+.tips { margin: 0; padding: 0 0 0 var(--space-4); display: grid; gap: var(--space-3); font-size: 14px; color: var(--ink-2); }
+.tips li::marker { color: var(--accent); }
+
+/* ---------------- Cerita: bagian bernomor + plat bergambar ---------------- */
+.chapter { display: grid; grid-template-columns: 34px 1fr; column-gap: var(--space-3); margin-bottom: var(--space-8); }
+.chapter-num {
+  font-family: var(--font-head);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent);
+  padding-top: 6px;
+  border-top: 1px solid var(--accent);
+}
+.chapter-body > p { margin: 0 0 var(--space-4); text-align: justify; text-align-last: left; hyphens: auto; }
+.chapter-body > p:last-child { margin-bottom: 0; }
+.chapter-quote { font-style: italic; color: var(--ink-2); border-left: 1px solid var(--accent); padding-left: var(--space-3); }
+.chapter-plate { margin: var(--space-4) 0 0; padding: 6px; aspect-ratio: 18 / 6; position: relative; }
+/* Revisi R7: tombol putar audio diperbesar dan digeser sedikit masuk.
+   Ukuran visual naik ke 40px dan area sentuhnya ke 44px lewat
+   pseudo-element. Posisinya digeser dari 12px ke 14px supaya area
+   sentuh 44px tidak menonjol keluar tepi plat. */
+.chapter-plate-btn {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--divider);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--ink-2);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.chapter-plate-btn::after {
+  content: "";
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 44px; height: 44px;
+}
+.chapter-plate-btn:hover { color: var(--accent-700); border-color: var(--accent); }
+.chapter-plate-btn svg { width: 16px; height: 16px; }
+
+/* Revisi R7: penanda tombol yang sedang memutar audio. Tanpa ini,
+   siswa mudah menekan dua kali dan memutar dua audio bertumpuk.
+   Kelas ini di-toggle dari Story.play()/Story.stop() di
+   script_Singhasari.js,
+   yang juga menjamin hanya satu audio berjalan pada satu waktu. */
+.chapter-plate-btn.is-playing {
+  border-color: var(--accent);
+  color: var(--accent-700);
+  background: var(--accent-100);
+}
+.chapter-caption { margin: var(--space-2) 0 0; font-size: 12px; color: var(--ink-3); }
+
+.vocab-chips { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: baseline; margin: var(--space-6) 0 0; padding-top: var(--space-4); border-top: 1px solid var(--divider); }
+.vocab-chips .chip { font-size: 13px; font-style: italic; padding: 3px var(--space-2); border: 1px solid var(--accent); border-radius: var(--radius-md); color: var(--accent-700); }
+
+/* ---------------- Dilema: pilih lalu beri alasan ---------------- */
+/* Revisi R7: teks keputusan bisa panjang — dua penjaga supaya tidak
+   pernah meluber keluar lebar baca. */
+.dilemma-prompt { font-size: clamp(19px, 5vw, 25px); font-weight: 400; font-family: var(--font-head); line-height: 1.3; margin: var(--space-3) 0 0; overflow-wrap: break-word; text-wrap: pretty; }
+.dilemma-sub { margin: var(--space-6) 0 var(--space-2); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-3); }
+.choices { display: grid; gap: var(--space-2); grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+.choice {
+  overflow-wrap: break-word;   /* Revisi R5: teks pilihan panjang tidak meluber di 320px */
+  min-height: 52px;
+  padding: var(--space-3);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-md);
+  background: transparent;
+  font-family: var(--font-head);
+  font-size: 17px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+.choice:hover:not(:disabled) { border-color: var(--accent); background: var(--accent-100); }
+.choice:disabled { cursor: default; }
+.choice.is-picked { border-color: var(--accent); background: var(--accent-100); color: var(--accent-700); }
+.choice.is-good { border-color: var(--good); background: var(--good-100); color: var(--good); }
+.choice.is-bad { border-color: var(--bad); background: var(--bad-100); color: var(--bad); }
+/* ============================================================
+   REVISI R4–R7 & TAMBAHAN T3–T4
+   Blok ini sengaja diletakkan paling akhir supaya aturannya
+   menang atas definisi dasar di atas tanpa perlu !important.
+   ============================================================ */
+
+/* ---------------- R4: caption merek hanya di desktop ---------------- */
+/* Revisi R4: caption merek disembunyikan di mobile — di layar sempit
+   ia berdesakan dengan bilah nyawa dan mendorong .nav-who keluar
+   viewport. Di desktop (layar guru & penguji) caption ini berguna
+   sebagai penanda produk saat diproyeksikan, jadi tetap ada.
+   Dipakai display:none, bukan visibility:hidden, supaya kolom grid-nya
+   ikut hilang dan .nav-tier-1 benar-benar melepas lebarnya. */
+.nav-brand { display: none; }
+
+/* Dengan caption hilang, tier-1 tinggal dua kolom di mobile:
+   nyawa di kiri, identitas siswa di kanan. */
+.nav-tier-1 { grid-template-columns: 1fr auto; }
+.nav-hearts { justify-content: flex-start; }
+
+@media (min-width: 768px) {
+  .nav-brand { display: inline; }
+  .nav-tier-1 { grid-template-columns: auto 1fr auto; }
+  .nav-hearts { justify-content: center; }
+}
+
+/* ---------------- R5: layar sangat sempit (<360px) ---------------- */
+/* Revisi R5: pada 320px, bilah tujuh nyawa dan empat tombol navigator
+   adalah dua penyumbang lebar terbesar yang tersisa setelah .nav-who
+   dibebaskan menyusut. Keduanya dikecilkan sedikit — bukan dihapus,
+   karena jumlah nyawa harus tetap terbaca sebagai tujuh. */
+@media (max-width: 359px) {
+  .nav-heart { width: 10px; height: 10px; }
+  .nav-hearts { gap: 2px; }
+  .nav-btn { width: 32px; height: 32px; }
+  .nav-btn svg { width: 17px; height: 17px; }
+
+  /* Label scorecard panjang tidak lagi memaksa lebar halaman hasil. */
+  .scorecard dt { white-space: normal; }
+
+  /* Revisi R5: .eyebrow global memakai white-space:nowrap. Di 320px itu
+     memaksa lebar pada satu tempat yang nyata: eyebrow halaman locked,
+     "Singhasari · Evaluative level" (29 karakter, 241px), membuat
+     .locked-card menuntut 298px padahal hanya tersedia 265px — kartunya
+     lalu meluber ke kanan DAN kiri karena ia di-place-items:center.
+     Di 360px ke atas teks itu sudah muat, jadi pembungkusan ini memang
+     hanya dibutuhkan di layar tersempit. */
+  .eyebrow { white-space: normal; }
+
+  /* Revisi R7: zona geser dipersempit supaya tepi kartu .choice dan
+     .option yang lebar penuh tidak tertangkap sebagai swipe-back. */
+  .swipe-zone { width: 18px; }
+}
+
+/* ---------------- R6: navigator sejajar lebar baca di desktop ---------------- */
+/* Revisi R6: di layar lebar, isi navigator mengikuti ukuran baca yang
+   sama dengan .stage. Latar dan garis bawahnya tetap membentang penuh
+   supaya bilah atas tetap terbaca sebagai satu bidang. */
+@media (min-width: 1024px) {
+  .nav-tier { max-width: 760px; margin-inline: auto; width: 100%; }
+}
+
+/* ---------------- R7: blok alasan sebagai LANJUTAN, bukan soal baru ---------------- */
+/* Revisi R7: blok alasan diberi penanda garis kiri supaya terbaca
+   sebagai LANJUTAN dari penilaian di atasnya, bukan soal baru.
+   Sepuluh keputusan x dua tahap = dua puluh layar; tanpa penanda ini
+   siswa mudah kehilangan hitungan di mana mereka berada. */
+#reasonBlock {
+  border-left: 2px solid var(--accent);
+  padding-left: var(--space-4);
+  margin-left: 2px;
+}
+/* Label "Step 2 of 2" memakai .eyebrow yang sudah ada supaya konsisten;
+   marginnya saja yang disesuaikan karena ia berdiri tepat di atas
+   .dilemma-sub yang sudah punya margin-top besar. */
+#reasonStepLabel { margin-top: var(--space-6); }
+#reasonBlock .dilemma-sub { margin-top: var(--space-1); }
+
+/* ---------------- T3: cetak halaman hasil ----------------
+   Ditujukan untuk dosen penguji yang ingin arsip fisik. Halaman hasil
+   Singhasari merangkum SELURUH perjalanan tujuh lokasi, jadi ini
+   dokumen bukti yang paling lengkap di proyek. Semua kendali
+   antarmuka disembunyikan; yang tersisa hanya isi yang bermakna. */
+@media print {
+  .nav, .hint-host, .dev-panel, .dev-tooltip, .swipe-zone, .float-back,
+  .transition, .blackout, .gate, .coach-wrap, .dialog-wrap,
+  .btn, .result-btn { display: none !important; }
+
+  html, body { background: #fff; color: #000; }
+  .stage { max-width: none; padding: 0; }
+  .section-title { break-after: avoid; }
+  .step-item, .answer-item, .tips li { break-inside: avoid; }
+  a[href]::after { content: ""; }
+
+  #resultPage::before {
+    content: "NarrativeLearn — Ringkasan perjalanan · " attr(data-student);
+    display: block;
+    margin-bottom: 12px;
+    padding-bottom: 6px;
+    font-size: 13pt;
+    border-bottom: 2px solid #000;
+  }
+  #resultPage::after {
+    content: "Dicetak dari NarrativeLearn · Singhasari (level evaluatif) · " attr(data-printed);
+    display: block;
+    margin-top: 18px;
+    padding-top: 6px;
+    font-size: 9pt;
+    color: #555;
+    border-top: 1px solid #999;
+  }
+}
+
+/* ---------------- T4: halaman hasil dua kolom di layar sangat lebar ----------------
+   Ini SATU-SATUNYA halaman yang mendapat perlakuan ini — halaman lain
+   tetap satu kolom karena aliran bacanya harus linear. Halaman hasil
+   berbeda: penguji memindainya, bukan membacanya berurutan.
+
+   #resultSteps SENGAJA TIDAK ikut dua kolom: isinya hanya tiga baris,
+   dan tiga baris yang dipecah jadi 2+1 terbaca seperti tata letak yang
+   rusak, bukan seperti ringkasan. Yang benar-benar panjang adalah
+   #resultAnswers (sampai sepuluh entri) dan #resultJourney (tujuh
+   lokasi) — dua itulah yang dipecah.
+
+   Pelebaran memakai pola bentang-penuh yang sama dengan .page-video
+   (Revisi R2), karena .stage di atasnya sudah terkunci 760px. */
+@media (min-width: 1280px) {
+  #resultPage {
+    margin-inline: calc(50% - 50vw);
+    padding-inline: max(var(--space-6), calc(50vw - 550px));
+  }
+  /* display:block WAJIB di sini. .steplist/.answerlist adalah
+     display:grid, dan sebuah grid container mengabaikan multi-kolom
+     sepenuhnya — `columns` akan terhitung 2 di getComputedStyle tetapi
+     tidak berpengaruh apa pun pada tata letak. Karena grid dilepas,
+     `gap` miliknya ikut hilang, jadi jarak antar entri dikembalikan
+     lewat margin-bottom. */
+  #resultAnswers,
+  #resultJourney {
+    display: block;
+    columns: 2;
+    column-gap: var(--space-8);
+    column-fill: balance;
+  }
+  #resultAnswers > li,
+  #resultJourney > li {
+    break-inside: avoid;
+    margin-bottom: var(--space-2);
+  }
+}
+
+/* Tambahan T3 (lanjutan): pembatalan tata letak T4 di atas kertas sengaja
+   diletakkan SETELAH blok T4, bukan di dalam blok cetak yang lebih awal.
+   Alasannya kekhususan yang sama persis: kalau urutannya terbalik,
+   `columns: 2` milik T4 yang menang saat kedua media query sama-sama
+   cocok — dan itu bisa benar-benar terjadi (kertas lanskap lebar, atau
+   pratinjau cetak yang memakai lebar layar alih-alih lebar kertas). */
+@media print {
+  #resultPage { margin-inline: 0; padding-inline: 0; }
+  #resultSteps, #resultAnswers, #resultJourney { columns: auto; }
+}

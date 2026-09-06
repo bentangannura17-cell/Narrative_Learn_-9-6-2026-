@@ -1,0 +1,495 @@
+/* ============================================================
+   THE LAKE OF LEMBAYUNG — style.css
+   ------------------------------------------------------------
+   Pemandangan dari mata seseorang yang sedang TURUN. Mulai dari
+   puncak menara — bukit di kanan, desa jauh di kiri, danau kecil
+   di antaranya — lalu turun ke atap rumah, tempat danau dan desa
+   jadi besar dan bukitnya menyusut.
+
+   Panggungnya dua layar mendatar kali dua layar menurun, tapi
+   hanya tiga petak yang dipakai:
+
+              .              [ puncak ]        <- awal
+                                  |  turun
+        [ Singhasari ] -- geser -- [ Muara Jati ]
+
+   Rangka luarnya (tombol, menu, panel daftar, transisi antar
+   level) ada di shared/hub.css.
+   ============================================================ */
+
+:root{
+  --kolom: 2;   /* lebar panggung, dalam kelipatan layar */
+  --baris: 2;   /* tinggi panggung, dalam kelipatan layar */
+
+  --senja-1:#241a44; --senja-2:#5c4482; --senja-3:#a2688f;
+  --senja-4:#d78a7e; --senja-5:#f2c193;
+  --daun-1:#4d7d64; --daun-2:#2f5a44; --daun-3:#1c3627;
+  --air-1:#b98fae;  --air-2:#6d4f8a;  --air-3:#291d47;
+  --genting:#8d4a3c; --genting-2:#5f2f27;
+}
+
+/* ============================================================
+   PANGGUNG
+   ============================================================ */
+.viewport{
+  position:fixed; inset:0;
+  height:100vh; height:100dvh;
+  overflow:auto;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+  scroll-snap-type:both mandatory;
+  scrollbar-width:none;
+  background:linear-gradient(to bottom, var(--senja-1), var(--senja-2));
+}
+.viewport::-webkit-scrollbar{ display:none; }
+
+.world{
+  position:relative;
+  width:calc(var(--kolom) * 100%);
+  height:calc(var(--baris) * 100%);
+}
+
+/* Petak = tempat berhenti. Isinya cuma tombol; gambarnya diurus
+   .scene, yang untuk baris bawah sengaja SATU untuk dua petak. */
+.cell{
+  position:absolute;
+  width:calc(100% / var(--kolom));
+  height:calc(100% / var(--baris));
+  scroll-snap-align:start;
+  pointer-events:none;
+}
+.cell--puncak    { left:50%; top:0;   z-index:3; }
+.cell--singhasari{ left:0;   top:50%; z-index:3; }
+.cell--muara     { left:50%; top:50%; z-index:3; }
+
+.cell__ui{ pointer-events:auto; }
+
+/* ============================================================
+   LANGIT BARIS ATAS
+   ------------------------------------------------------------
+   Sengaja dibentang ke SELURUH baris atas, termasuk petak
+   kiri-atas yang tidak pernah jadi tujuan. Petak itu memang tidak
+   bisa dituju dengan jari, tapi kalau pun terlewat sekilas — saat
+   melompat lewat titik penunjuk, misalnya — yang terlihat langit,
+   bukan lubang kosong.
+   ============================================================ */
+.skyrow{
+  position:absolute; left:0; top:0;
+  width:100%; height:50%;
+  background:linear-gradient(to bottom,
+    var(--senja-1) 0%, var(--senja-2) 42%, var(--senja-3) 74%, var(--senja-4) 100%);
+  overflow:hidden;
+}
+.haze{
+  position:absolute; left:0; right:0; bottom:0; height:34%;
+  background:linear-gradient(to top, rgba(242,193,147,.4), rgba(242,193,147,0));
+}
+.cloud{
+  position:absolute; left:var(--x); top:var(--y);
+  width:var(--w); height:3.2%;
+  border-radius:999px;
+  background:linear-gradient(90deg, rgba(255,226,214,0), rgba(255,226,214,.34), rgba(255,226,214,0));
+  filter:blur(3px);
+  animation:arak var(--dur) linear infinite;
+}
+@keyframes arak{
+  from{ transform:translateX(-8%); }
+  to  { transform:translateX(38%); }
+}
+
+/* ============================================================
+   PEMANDANGAN
+   ------------------------------------------------------------
+   Disusun dengan penempatan CSS, bukan satu SVG besar yang
+   di-"slice". Satu SVG persegi yang dipaksa menutup layar 6:18
+   hanya menyisakan sepertiga tengahnya — dan justru di sisi kiri
+   dan kanan itulah desa dan bukitnya berada.
+   ============================================================ */
+.scene{ position:absolute; overflow:hidden; }
+.scene__art{ position:absolute; inset:0; }
+/* Titik tumpu pembesarannya di bawah untuk pemandangan puncak (kita
+   menjauh dari tanah di bawah kaki) dan di atas untuk pemandangan atap
+   (kita mendekat ke tanah di depan). */
+.scene--puncak .scene__art{ transform-origin:50% 78%; }
+.scene--atap   .scene__art{ transform-origin:50% 18%; }
+
+/* ============================================================
+   DARI PUNCAK MENARA
+   ------------------------------------------------------------
+   Cakrawalanya tinggi dan semuanya kecil. Bukit di kanan sengaja
+   terpotong tepi layar: dari sini pun ia sudah terlalu besar
+   untuk dilihat utuh.
+   ============================================================ */
+.scene--puncak{ inset:0; z-index:2; --cakrawala:29%; }
+
+/* Tepi atas tanah dibuat MELENGKUNG dengan border-radius, dan
+   bidangnya dibuat lebih lebar dari layar supaya lengkungnya
+   halus — bukan seperti bukit. Lengkung inilah satu-satunya
+   isyarat bahwa pandangan ini diambil dari tempat yang tinggi. */
+.p-tanah{
+  position:absolute; left:-25%; right:-25%;
+  top:var(--cakrawala); bottom:0;
+  background:linear-gradient(to bottom, #4a7a63 0%, #37624f 44%, #20402f 100%);
+  border-radius:50% 50% 0 0 / 9% 9% 0 0;
+  box-shadow:0 -2px 0 rgba(143,208,164,.22);
+}
+.p-jauh{
+  position:absolute; left:-25%; right:-25%;
+  top:calc(var(--cakrawala) - 3.4%); height:4.4%;
+}
+.p-jauh svg{ display:block; width:100%; height:100%; }
+.p-jauh path{ fill:#6a5a8e; opacity:.5; }
+
+.p-danau{
+  position:absolute; left:46%; top:54%;
+  width:min(76vw, 420px); aspect-ratio:3.4 / 1;
+  transform:translate(-50%,-50%);
+}
+.p-danau i{
+  position:absolute; inset:0; border-radius:50%;
+  background:linear-gradient(to bottom, #c9a2b8 0%, #7d5f96 34%, #3a2b5c 100%);
+  box-shadow:0 6px 18px rgba(20,12,42,.45);
+}
+.p-danau__kilau{
+  inset:14% 22% 56% 12%;
+  background:rgba(247,217,194,.3) !important;
+  box-shadow:none !important;
+}
+
+.p-desa{
+  position:absolute; left:16%; top:calc(var(--cakrawala) + 13%);
+  width:min(28vw, 160px); aspect-ratio:240 / 110;
+  transform:translate(-50%,-100%);
+}
+.p-jalan{
+  position:absolute; left:20%; right:26%;
+  top:calc(var(--cakrawala) + 12%); height:6%;
+}
+.p-jalan svg{ display:block; width:100%; height:100%; }
+.p-jalan path{
+  fill:none; stroke:#e3cfa6; stroke-width:4;
+  stroke-linecap:round; stroke-dasharray:14 16; opacity:.36;
+}
+
+/* Bukit Camar: sengaja melewati tepi kanan layar. */
+.p-bukit{
+  position:absolute; left:94%; top:calc(var(--cakrawala) + 21%);
+  width:min(66vw, 360px); aspect-ratio:320 / 200;
+  transform:translate(-50%,-100%);
+}
+
+/* ---------- Tanah di bawah menara ----------
+   Petak-petak ladang, deretan pohon, lalu bayangan gelap di kaki
+   layar. Ketiganya cuma untuk memberi ISI pada separuh bawah:
+   dari tempat setinggi ini, yang di bawah kaki justru bagian
+   yang paling luas terlihat. */
+.p-petak{
+  position:absolute; left:-25%; right:-25%; top:58%; bottom:0;
+  background:
+    repeating-linear-gradient(74deg,
+      rgba(255,255,255,.05) 0 2.6%, rgba(0,0,0,.05) 2.6% 5.4%),
+    repeating-linear-gradient(168deg,
+      rgba(0,0,0,.05) 0 4%, rgba(255,255,255,.03) 4% 8%);
+  opacity:.34;
+  /* Tepi atasnya diluluhkan. Tanpa ini, petak ladang mulai dengan
+     garis lurus melintang yang membelah pemandangan jadi dua. */
+  -webkit-mask-image:linear-gradient(to bottom, transparent 0, #000 22%);
+          mask-image:linear-gradient(to bottom, transparent 0, #000 22%);
+}
+.p-rimbun{
+  position:absolute; left:-25%; right:-25%; top:59.5%; height:3.4%;
+  opacity:.34;
+}
+.p-rimbun svg{ display:block; width:100%; height:100%; }
+.p-rimbun path{ fill:#1c3627; }
+.p-kaki{
+  position:absolute; left:0; right:0; bottom:0; height:34%;
+  background:linear-gradient(to top, rgba(14,26,20,.62), rgba(14,26,20,0));
+}
+
+/* ============================================================
+   DARI ATAP RUMAH
+   ------------------------------------------------------------
+   Cakrawalanya turun jauh, jadi desa dan danau jadi besar
+   sementara bukitnya menyusut. Sunda Kelapa sudah tidak
+   terlihat sama sekali: ia tertutup lengkung bumi di balik
+   cakrawala — persis yang terjadi kalau kita turun dari tempat
+   tinggi ke atap sebuah rumah.
+   ============================================================ */
+.scene--atap{
+  left:0; top:50%;
+  width:100%; height:50%;
+  z-index:2;
+  --cakrawala:21%;
+  background:linear-gradient(to bottom,
+    #3b2a5e 0%, #77558c 44%, #c98b86 78%, #f2c193 100%);
+}
+.a-jauh{
+  position:absolute; left:0; right:0;
+  top:calc(var(--cakrawala) - 2.6%); height:3.2%;
+}
+.a-jauh svg{ display:block; width:100%; height:100%; }
+.a-jauh path{ fill:#5d4f7d; opacity:.55; }
+
+/* Bukit yang tadi memenuhi tepi layar kini tinggal segitiga kecil
+   di kejauhan. Perubahan ukurannya itu sendiri yang mengabarkan
+   bahwa kita sudah turun. */
+.a-bukit{
+  position:absolute; left:84%; top:var(--cakrawala);
+  width:min(22vw, 150px); aspect-ratio:320 / 200;
+  transform:translate(-50%,-100%);
+  opacity:.5;
+}
+
+.a-danau{
+  position:absolute; left:0; right:0;
+  top:var(--cakrawala); height:26%;
+  background:linear-gradient(to bottom, #b98fae 0%, #7a5a96 32%, #3d2d63 100%);
+  border-radius:40% 40% 0 0 / 9% 9% 0 0;
+}
+/* Pantulan langit senja di sepertiga atas permukaan. Tanpa ini danau
+   sebesar ini cuma terbaca sebagai satu bidang ungu rata. */
+.a-danau::before{
+  content:""; position:absolute; left:0; right:0; top:0; height:34%;
+  background:linear-gradient(to bottom, rgba(247,217,194,.24), rgba(247,217,194,0));
+  border-radius:40% 40% 0 0 / 26% 26% 0 0;
+}
+.a-kilau{
+  position:absolute; left:var(--x); top:var(--y);
+  width:var(--w); height:5%;
+  border-radius:50%;
+  background:rgba(247,217,194,.16);
+  animation:riak 11s ease-in-out infinite alternate;
+}
+@keyframes riak{ from{ opacity:.5 } to{ opacity:1 } }
+
+/* Perahu warga, ditambatkan di tepi danau. */
+.a-perahu{
+  position:absolute; left:var(--x); top:calc(var(--cakrawala) + 25.5%);
+  width:min(5vw, 34px); height:1%;
+  transform:translate(-50%,-100%);
+  background:#e6cfa8; opacity:.7;
+  clip-path:polygon(0 0, 100% 0, 84% 100%, 16% 100%);
+}
+
+.a-darat{
+  position:absolute; left:0; right:0;
+  top:calc(var(--cakrawala) + 25%); bottom:0;
+  background:linear-gradient(to bottom, #4d7d64 0%, #35604a 38%, #1e3a2b 100%);
+  border-radius:34% 34% 0 0 / 6% 6% 0 0;
+  box-shadow:0 -3px 0 rgba(230,207,168,.4);
+}
+
+/* Alur sungai yang membelah Muara Jati, melebar ke arah kita. */
+.a-sungai{
+  position:absolute; left:64%; top:calc(var(--cakrawala) + 25%);
+  width:min(15vw, 96px); bottom:0;
+  transform:translateX(-50%);
+  background:linear-gradient(to bottom, rgba(61,45,99,.9), rgba(45,32,76,.75));
+  clip-path:polygon(38% 0, 62% 0, 100% 100%, 0 100%);
+}
+.a-jembatan{
+  position:absolute; left:64%; top:calc(var(--cakrawala) + 44%);
+  width:min(17vw, 112px); height:5%;
+  transform:translateX(-50%);
+}
+.a-jembatan svg{ display:block; width:100%; height:100%; }
+.a-jembatan path{ fill:none; stroke:#e0c391; stroke-width:4; stroke-linecap:round; }
+
+/* Bekas aliran lumpur yang turun dari arah bukit ke Singhasari. */
+.a-lumpur{
+  position:absolute; left:12%; top:calc(var(--cakrawala) + 25%);
+  width:min(20vw, 130px); height:30%;
+  transform:translateX(-50%);
+  background:linear-gradient(to bottom, rgba(112,86,62,.55), rgba(112,86,62,0));
+  clip-path:polygon(40% 0, 60% 0, 96% 100%, 4% 100%);
+}
+
+/* Desanya BESAR: inilah bedanya dengan pandangan dari puncak. */
+.a-desa{
+  position:absolute; top:calc(var(--cakrawala) + 58%);
+  width:min(46vw, 290px); aspect-ratio:240 / 110;
+  transform:translate(-50%,-100%);
+}
+.a-desa--kiri { left:28%; }     /* pusat layar kiri  · Singhasari */
+.a-desa--kanan{ left:82%; }     /* di seberang sungai · Muara Jati */
+
+.a-pohon{
+  position:absolute; left:var(--x); top:calc(var(--cakrawala) + 40%);
+  width:min(5vw, 30px); aspect-ratio:1 / 2.4;
+  transform:translate(-50%,-100%);
+  background:#1c3627; opacity:.8;
+  clip-path:polygon(50% 0, 100% 100%, 0 100%);
+}
+
+/* ---------- Desa & bukit, dipakai kedua pemandangan ---------- */
+.desa{ display:block; width:100%; height:100%; }
+.desa__badan path{ fill:#7d5340; }
+.desa__badan path:nth-child(even){ fill:#8e6049; }
+.desa__atap  path{ fill:#a3574a; }
+.desa__pohon path{ fill:#1c3627; opacity:.85; }
+
+.p-bukit svg, .a-bukit svg{ display:block; width:100%; height:100%; }
+.bukit__badan{ fill:#356048; }
+.bukit__sisi { fill:#28483a; }
+.bukit__garis{ fill:none; stroke:#8fd0a4; stroke-width:4; opacity:.2; }
+
+/* Atap tempat kita berdiri. Dibuat dengan gradien berulang, bukan
+   puluhan genteng terpisah — di HP kelas bawah itu selisih yang
+   terasa. */
+.atap{
+  position:absolute; left:0; right:0; bottom:0;
+  height:15%;
+  background:
+    repeating-linear-gradient(90deg,
+      rgba(0,0,0,.22) 0 2px, rgba(0,0,0,0) 2px 3.2%),
+    repeating-linear-gradient(180deg,
+      rgba(255,255,255,.07) 0 6%, rgba(0,0,0,.06) 6% 12%),
+    linear-gradient(to bottom, var(--genting) 0%, var(--genting-2) 100%);
+  box-shadow:0 -14px 34px rgba(24,12,40,.5);
+}
+.atap__bubung{
+  position:absolute; left:0; right:0; top:0; height:14%;
+  background:linear-gradient(to bottom, #b0685a, var(--genting));
+  box-shadow:0 2px 0 rgba(0,0,0,.18);
+}
+
+/* ============================================================
+   TOMBOL MULAI
+   ------------------------------------------------------------
+   Letaknya berbeda-beda karena pemandangannya berbeda-beda:
+   di puncak ada DUA tempat yang terlihat sekaligus, jadi ada dua
+   tombol — masing-masing di sisi tempatnya berada. Di baris bawah
+   hanya ada satu tempat per layar, jadi tombolnya di tengah atas.
+   ============================================================ */
+.cell__ui{
+  position:absolute; left:0; right:0;
+  top:calc(70px + var(--safe-t));
+  padding:0 12px;
+  display:flex; gap:10px;
+}
+.cell__ui--sepasang{ justify-content:space-between; align-items:flex-start; }
+.cell__ui--tengah  { justify-content:center; }
+
+.dcard{
+  display:flex; align-items:center; gap:11px;
+  padding:10px 11px 10px 13px;
+  border-radius:var(--r-lg);
+  background:linear-gradient(150deg, rgba(92,68,130,.8), rgba(36,26,68,.9));
+  border:1px solid rgba(253,251,246,.24);
+  -webkit-backdrop-filter:blur(14px) saturate(1.2);
+  backdrop-filter:blur(14px) saturate(1.2);
+  box-shadow:var(--shadow-2);
+  transition:transform .2s ease, opacity .3s ease;
+}
+.dcard:active{ transform:scale(.985); }
+
+.cell__ui--tengah .dcard{ width:min(100%, 420px); }
+
+/* Sepasang tombol harus muat berdampingan di layar HP, jadi
+   isinya ditumpuk ke bawah dan keterangannya disembunyikan.
+   Alasan terkuncinya tetap sampai ke siswa lewat pesan singkat
+   saat tombolnya diketuk — lihat pesan() di shared/hub.js. */
+.cell__ui--sepasang .dcard{
+  flex-direction:column; align-items:flex-start; gap:7px;
+  width:calc(50% - 5px);
+  padding:11px 12px;
+}
+.cell__ui--sepasang .dcard__desc{ display:none; }
+.cell__ui--sepasang .dcard__go{ width:100%; justify-content:center; }
+.cell__ui--sepasang .dcard__body{ width:100%; }
+
+.dcard__no{
+  width:30px; height:30px; flex:none;
+  display:grid; place-items:center;
+  border-radius:50%;
+  background:rgba(253,251,246,.14);
+  border:1px solid rgba(253,251,246,.28);
+  font-size:13px; font-weight:750;
+}
+.dcard__body{ display:flex; flex-direction:column; gap:1px; min-width:0; }
+.dcard__eyebrow{ font-size:9.5px; letter-spacing:.16em; text-transform:uppercase; opacity:.7; }
+.dcard__title{
+  font-size:clamp(15px,4.2vw,18px); font-weight:750; letter-spacing:-.015em; line-height:1.2;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.dcard__desc{ font-size:clamp(11px,3vw,12.5px); opacity:.76; line-height:1.35;
+  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+
+.dcard__go{
+  margin-left:auto; flex:none;
+  display:inline-flex; align-items:center; gap:6px;
+  min-height:36px; padding:0 13px;
+  border-radius:999px;
+  background:var(--paper); color:#2b1f4d;
+  font-size:12.5px; font-weight:750;
+  box-shadow:var(--shadow-1);
+}
+.ico{ width:17px; height:17px; fill:none; stroke:currentColor; stroke-width:2.3;
+      stroke-linecap:round; stroke-linejoin:round; display:none; }
+.dcard .ico--go{ display:block; }
+
+.dcard.is-locked{
+  background:linear-gradient(150deg, rgba(52,48,72,.74), rgba(18,14,32,.9));
+  border-color:rgba(253,251,246,.14);
+}
+.dcard.is-locked .dcard__title{ opacity:.74; }
+.dcard.is-locked .dcard__go{ background:rgba(253,251,246,.14); color:var(--paper); box-shadow:none; }
+.dcard.is-locked .dcard__golabel{ display:none; }
+.dcard.is-locked .ico--go{ display:none; }
+.dcard.is-locked .ico--lock{ display:block; }
+
+.dcard.is-done .ico--go{ display:none; }
+.dcard.is-done .ico--done{ display:block; }
+.dcard.is-done .dcard__go{ background:var(--w-100); color:#37205c; }
+
+/* ============================================================
+   PETUNJUK ARAH
+   ------------------------------------------------------------
+   Urutannya memang tidak biasa — turun dulu, baru geser — jadi
+   arah berikutnya perlu dikatakan, bukan ditebak. Hilang sendiri
+   begitu petak itu ditinggalkan.
+   ============================================================ */
+.hint{
+  position:absolute; z-index:4;
+  margin:0;
+  display:inline-flex; align-items:center; gap:7px;
+  padding:8px 14px; border-radius:999px;
+  background:rgba(24,14,44,.5);
+  border:1px solid rgba(253,251,246,.2);
+  -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);
+  font-size:12px; font-weight:600; letter-spacing:.01em;
+  opacity:0; transition:opacity .4s ease;
+  pointer-events:none;
+}
+.hint svg{ width:16px; height:16px; fill:none; stroke:currentColor;
+           stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round; }
+.hint--turun{
+  left:50%; transform:translateX(-50%);
+  bottom:calc(74px + var(--safe-b));
+  animation:mengangguk 2.6s ease-in-out infinite;
+}
+.hint--kiri{
+  left:14px; top:50%; transform:translateY(-50%);
+  animation:menoleh 2.6s ease-in-out infinite;
+}
+body[data-cell="atas"]  .hint--turun{ opacity:.9; }
+body[data-cell="kanan"] .hint--kiri { opacity:.9; }
+
+@keyframes mengangguk{
+  0%,100%{ transform:translateX(-50%) translateY(0); }
+  50%    { transform:translateX(-50%) translateY(5px); }
+}
+@keyframes menoleh{
+  0%,100%{ transform:translateY(-50%) translateX(0); }
+  50%    { transform:translateY(-50%) translateX(-5px); }
+}
+
+/* Titik penunjuk mengikuti JALUR, bukan letak di layar: puncak,
+   lalu Muara Jati, lalu Singhasari. */
+.dots--jalur{ bottom:calc(16px + var(--safe-b)); }
+
+/* ============================================================
+   LAYAR SANGAT LEBAR
+   ============================================================ */
+.no-scroll .hint{ display:none; }

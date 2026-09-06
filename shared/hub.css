@@ -1,0 +1,248 @@
+/* ============================================================
+   NARRATIVE LEARN — shared/hub.css
+   ------------------------------------------------------------
+   Rangka luar yang SAMA untuk kedua hub (level 2): reset,
+   tombol pulang, tombol menu, titik penunjuk, pesan singkat,
+   panel daftar, dan transisi masuk-keluar dari peta induk.
+
+   Yang TIDAK ada di sini adalah pemandangannya. Ocean berlayar
+   menyusuri pesisir, Lake menuruni ketinggian — keduanya punya
+   panggung, lapisan, dan tombol mulai sendiri di style.css
+   masing-masing.
+
+   Urutan pemuatan di tiap hub:
+
+     <link rel="stylesheet" href="../shared/tokens.css">
+     <link rel="stylesheet" href="../shared/hub.css">
+     <link rel="stylesheet" href="style.css">    <-- punya hub itu
+   ============================================================ */
+
+/* ============================================================
+   RESET
+   ============================================================ */
+*,*::before,*::after{ box-sizing:border-box; }
+
+html,body{
+  margin:0; height:100%; overflow:hidden;
+  background:var(--sky-1);
+  font-family:var(--font); color:var(--paper);
+  -webkit-font-smoothing:antialiased;
+  -webkit-tap-highlight-color:transparent;
+  overscroll-behavior:none;
+}
+button{ font:inherit; color:inherit; border:0; background:none; cursor:pointer; }
+a{ color:inherit; text-decoration:none; }
+
+.skip-link{
+  position:fixed; left:12px; top:-100px; z-index:99;
+  padding:10px 14px; border-radius:var(--r-sm);
+  background:var(--paper); color:var(--ink); font-size:14px; font-weight:600;
+  transition:top .2s;
+}
+.skip-link:focus{ top:calc(12px + var(--safe-t)); }
+:focus-visible{ outline:3px solid #fff; outline-offset:3px; border-radius:8px; }
+
+
+/* ============================================================
+   CHROME
+   ============================================================ */
+.back-btn,
+.menu-btn{
+  position:fixed; z-index:21;
+  top:calc(14px + var(--safe-t));
+  display:inline-flex; align-items:center; gap:8px;
+  min-height:44px; padding:0 16px;
+  border-radius:999px;
+  background:rgba(6,30,46,.44);
+  border:1px solid rgba(253,251,246,.24);
+  -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
+  font-size:13px; font-weight:650; letter-spacing:.02em;
+  box-shadow:var(--shadow-1);
+}
+.back-btn{ left:14px; max-width:52vw; }
+.back-btn span:last-child{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.back-btn__arw{ font-size:17px; line-height:1; opacity:.75; }
+.menu-btn{ right:14px; }
+.menu-btn__bars{ display:grid; gap:4px; }
+.menu-btn__bars i{ display:block; width:16px; height:2px; border-radius:2px; background:currentColor; }
+
+.dots{
+  position:fixed; z-index:21;
+  left:50%; transform:translateX(-50%);
+  bottom:calc(16px + var(--safe-b));
+  display:flex; gap:6px;
+  padding:7px 9px; border-radius:999px;
+  background:rgba(6,30,46,.42);
+  border:1px solid rgba(253,251,246,.18);
+  -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);
+}
+.dots__d{ width:32px; height:32px; display:grid; place-items:center; border-radius:50%; }
+.dots__d::before{
+  content:"";
+  width:7px; height:7px; border-radius:99px;
+  background:rgba(253,251,246,.42);
+  transition:width .25s ease, background .25s ease;
+}
+.dots__d.is-on::before{ width:22px; background:var(--paper); }
+.dots__d.is-done::before{ background:var(--w-100); }
+.dots__d.is-locked::before{ background:rgba(253,251,246,.2); }
+
+/* Pesan singkat saat kartu terkunci diketuk */
+.toast{
+  position:fixed; z-index:25;
+  left:50%; transform:translate(-50%, 10px);
+  bottom:calc(150px + var(--safe-b));
+  margin:0; max-width:min(86vw, 420px);
+  padding:11px 17px; border-radius:999px;
+  background:rgba(6,30,46,.9);
+  border:1px solid rgba(253,251,246,.22);
+  -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);
+  font-size:13px; line-height:1.4; text-align:center;
+  opacity:0; pointer-events:none;
+  transition:opacity .25s ease, transform .25s ease;
+}
+.toast.is-on{ opacity:1; transform:translate(-50%, 0); }
+
+/* ============================================================
+   PANEL DAFTAR
+   ============================================================ */
+.sheet-backdrop{
+  position:fixed; inset:0; z-index:29;
+  background:rgba(3,14,24,.58);
+  -webkit-backdrop-filter:blur(3px); backdrop-filter:blur(3px);
+  opacity:0; transition:opacity .25s ease;
+}
+.sheet-backdrop.is-on{ opacity:1; }
+
+.sheet{
+  position:fixed; z-index:30; left:0; right:0; bottom:0;
+  padding:10px 16px calc(18px + var(--safe-b));
+  border-radius:26px 26px 0 0;
+  background:rgba(8,36,56,.95);
+  border-top:1px solid rgba(253,251,246,.18);
+  -webkit-backdrop-filter:blur(18px); backdrop-filter:blur(18px);
+  box-shadow:0 -12px 44px rgba(4,20,32,.5);
+  transform:translateY(102%);
+  transition:transform .32s cubic-bezier(.22,.9,.28,1);
+  max-width:520px; margin-inline:auto;
+  max-height:88dvh; overflow-y:auto;
+}
+.sheet.is-on{ transform:translateY(0); }
+
+.sheet__grip{ width:42px; height:4px; border-radius:99px; background:rgba(253,251,246,.32); margin:0 auto 14px; }
+.sheet__title{ margin:0 0 14px; font-size:15px; font-weight:700; text-align:center; opacity:.9; }
+
+.sheet__item{
+  display:flex; align-items:center; gap:13px;
+  padding:13px; margin-bottom:9px;
+  border-radius:var(--r-md);
+  background:rgba(253,251,246,.07);
+  border:1px solid rgba(253,251,246,.14);
+  min-height:62px; width:100%; text-align:left;
+}
+.sheet__item:active{ background:rgba(253,251,246,.13); }
+.sheet__item.is-locked{ opacity:.55; }
+.sheet__mark{
+  width:36px; height:36px; border-radius:11px; flex:none;
+  display:grid; place-items:center; font-size:14px; font-weight:750;
+  background:linear-gradient(150deg, var(--w-300), var(--w-900));
+}
+.sheet__item.is-locked .sheet__mark{ background:rgba(253,251,246,.1); }
+.sheet__item.is-done .sheet__mark{ background:linear-gradient(150deg, var(--w-100), var(--w-700)); color:var(--w-900); }
+.sheet__txt strong{ display:block; font-size:15px; font-weight:700; }
+.sheet__txt em{ display:block; font-style:normal; font-size:12px; opacity:.68; margin-top:2px; line-height:1.35; }
+.sheet__state{ margin-left:auto; flex:none; opacity:.7; }
+.sheet__state .ico{ display:block; width:19px; height:19px; }
+
+.sheet__tools{ display:flex; gap:9px; margin:14px 0 10px; }
+.sheet__tool{
+  flex:1; min-height:42px; border-radius:var(--r-md);
+  background:rgba(253,251,246,.09);
+  border:1px solid rgba(253,251,246,.14);
+  font-size:12.5px; font-weight:600; line-height:1.3; padding:0 8px;
+}
+.sheet__home{
+  display:block; text-align:center; padding:12px 0;
+  font-size:13px; font-weight:650; opacity:.82;
+}
+.sheet__close{
+  width:100%; min-height:46px; margin-top:4px;
+  border-radius:var(--r-md);
+  background:rgba(253,251,246,.1);
+  font-size:14px; font-weight:650;
+}
+
+
+/* ============================================================
+   MODE HEMAT GERAK
+   ============================================================ */
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration:.001ms !important; animation-iteration-count:1 !important;
+     transition-duration:.001ms !important; scroll-behavior:auto !important; }
+  .viewport{ scroll-snap-type:none; }
+}
+
+
+/* =========================================================
+   TRANSISI MASUK & KELUAR (level 1 <-> level 2)
+   ---------------------------------------------------------
+   Menyambung gerakan zoom dari peta induk. .is-entering
+   dipasang sesaat lalu dilepas, jadi panggung ini melar
+   sebentar kemudian mengecil ke ukuran normal — kelanjutan
+   dari peta induk yang tadi membesar. .is-leaving adalah
+   kebalikannya, dipakai tombol kembali.
+
+   Durasi di bawah harus sama dengan LAMA_ZOOM di shared/hub.js.
+   ========================================================= */
+.viewport{
+  transition:transform .42s cubic-bezier(.4,0,.2,1), opacity .42s ease;
+  will-change:transform;
+}
+body.is-entering .viewport{ transform:scale(1.6); opacity:0; transition:none; }
+body.is-entering .dock,
+body.is-entering .dots,
+body.is-entering .menu-btn,
+body.is-entering .back-btn,
+body.is-entering .ship{ opacity:0; transition:none; }
+
+body.is-leaving{ overflow:hidden; }
+body.is-leaving .viewport{ transform:scale(.72); opacity:0; }
+body.is-leaving .dock,
+body.is-leaving .dots,
+body.is-leaving .menu-btn,
+body.is-leaving .back-btn,
+body.is-leaving .ship{
+  opacity:0; transform:translateY(10px);
+  transition:opacity .2s ease, transform .2s ease;
+  pointer-events:none;
+}
+
+@media (prefers-reduced-motion: reduce){
+  .viewport{ transition:none; }
+  body.is-entering .viewport,
+  body.is-leaving  .viewport{ transform:none; opacity:1; }
+}
+
+/* =========================================================
+   SLOT GAMBAR SENDIRI
+   ---------------------------------------------------------
+   Dipasang NLHub.gambar() kalau berkas gambarnya ditemukan.
+   Begitu kelas ini ada, gambar yang digambar dengan kode di
+   dalamnya disembunyikan dan foto itu yang tampil.
+
+   background-size:cover dipilih, bukan contain: lebarnya harus
+   SELALU pas. Kalau gambar dibiarkan menyempit, pulau atau desa
+   akan bergeser keluar dari panelnya sendiri dan tombol mulai
+   menunjuk tempat yang salah. Yang boleh terpotong hanya
+   tingginya.
+
+   --foto-posisi bisa dipakai untuk menggeser bagian mana yang
+   dipertahankan saat terpotong, misalnya "center 38%" supaya
+   garis cakrawala tidak ikut hilang.
+   ========================================================= */
+.has-foto{
+  background-repeat:no-repeat;
+  background-size:cover;
+  background-position:var(--foto-posisi, center);
+}
+.has-foto > *{ display:none !important; }

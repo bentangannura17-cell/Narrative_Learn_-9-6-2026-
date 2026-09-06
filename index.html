@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="id" data-world="beranda">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0e3350">
+<title>Narrative Learn</title>
+<meta name="description" content="Peta pembelajaran naratif: Ocean Journey dan The Lake of Lembayung.">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="shared/tokens.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Tautan pintas untuk pengguna keyboard / pembaca layar -->
+<a class="skip-link" href="#menuBtn">Lewati peta, buka daftar platform</a>
+
+<!-- =========================================================
+     VIEWPORT = area yang bisa digeser kiri-kanan
+     WORLD    = isi yang digeser (lebarnya --rail-w)
+     ========================================================= -->
+<div class="viewport" id="viewport" role="region" tabindex="0"
+     aria-label="Peta Narrative Learn. Geser ke kiri atau kanan untuk menjelajah.">
+  <div class="world" id="world">
+
+    <!-- ============ LAPIS 1 : LANGIT (paling jauh, gerak paling lambat) ============ -->
+    <div class="layer layer--sky" data-speed="0.30">
+      <div class="art art--sky">
+        <svg class="deco" id="skyDeco" viewBox="0 0 3800 700" preserveAspectRatio="none" aria-hidden="true"></svg>
+      </div>
+    </div>
+
+    <!-- ============ LAPIS 2 : PETA UTAMA (rasio 38:16 dijaga persis) ============ -->
+    <div class="layer layer--map" data-speed="1">
+      <div class="art art--map" id="artMap">
+
+        <svg class="map" viewBox="0 0 3800 1600" role="img"
+             aria-label="Peta dari udara: samudra di kiri, perbukitan di tengah, dan danau berpulau di kanan.">
+          <defs>
+            <!-- ---------- Air laut ---------- -->
+            <linearGradient id="gSea" x1="0" y1="0" x2="0.22" y2="1">
+              <stop offset="0"    stop-color="#5aa7b8"/>
+              <stop offset="0.22" stop-color="#2b86a2"/>
+              <stop offset="0.60" stop-color="#155f80"/>
+              <stop offset="1"    stop-color="#0a3550"/>
+            </linearGradient>
+
+            <!-- ---------- Daratan ---------- -->
+            <linearGradient id="gLand" x1="0" y1="0" x2="0.15" y2="1">
+              <stop offset="0"    stop-color="#6f9d72"/>
+              <stop offset="0.20" stop-color="#4c8a5f"/>
+              <stop offset="0.60" stop-color="#3a7150"/>
+              <stop offset="1"    stop-color="#27543c"/>
+            </linearGradient>
+
+            <!-- ---------- Bukit (gradien = volume tanpa garis keras) ---------- -->
+            <linearGradient id="gHill" x1="0.1" y1="0" x2="0.55" y2="1">
+              <stop offset="0"   stop-color="#69a677"/>
+              <stop offset="0.5" stop-color="#4a8760"/>
+              <stop offset="1"   stop-color="#316548"/>
+            </linearGradient>
+            <linearGradient id="gHillFar" x1="0.1" y1="0" x2="0.55" y2="1">
+              <stop offset="0"   stop-color="#7dae83"/>
+              <stop offset="1"   stop-color="#4d8862"/>
+            </linearGradient>
+
+            <!-- ---------- Rona senja, menguat ke kanan (dibuat tipis) ---------- -->
+            <linearGradient id="gDusk" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0.34" stop-color="#e08a5a" stop-opacity="0"/>
+              <stop offset="0.64" stop-color="#d8825f" stop-opacity="0.10"/>
+              <stop offset="1"    stop-color="#8c5590" stop-opacity="0.24"/>
+            </linearGradient>
+
+            <!-- ---------- Danau Lembayung ---------- -->
+            <linearGradient id="gLake" x1="0.15" y1="0" x2="0.7" y2="1">
+              <stop offset="0"    stop-color="#8f6ba8"/>
+              <stop offset="0.35" stop-color="#5c4482"/>
+              <stop offset="1"    stop-color="#2f2354"/>
+            </linearGradient>
+
+            <!-- ---------- Bukit pulau: gradien, bukan dua bidang datar ---------- -->
+            <linearGradient id="gPeak" x1="0.05" y1="0.08" x2="0.9" y2="0.92">
+              <stop offset="0"    stop-color="#6cae81"/>
+              <stop offset="0.42" stop-color="#3f7d5b"/>
+              <stop offset="1"    stop-color="#22513c"/>
+            </linearGradient>
+
+            <!-- ---------- Cahaya senja di puncak bukit pulau ---------- -->
+            <radialGradient id="gGlow" cx="0.5" cy="0.5" r="0.5">
+              <stop offset="0"   stop-color="#ffd2a0" stop-opacity="0.42"/>
+              <stop offset="0.55" stop-color="#ff9d7a" stop-opacity="0.14"/>
+              <stop offset="1"   stop-color="#ff9d7a" stop-opacity="0"/>
+            </radialGradient>
+
+            <!-- ---------- Bayang lembut di dasar layar ---------- -->
+            <linearGradient id="gVign" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#0b2033" stop-opacity="0"/>
+              <stop offset="1" stop-color="#0b2033" stop-opacity="0.34"/>
+            </linearGradient>
+
+            <!-- ---------- KUNCI KEDALAMAN ----------
+                 Seluruh daratan dimasukkan ke dalam mask ini. Bagian
+                 paling atas dibuat transparan sehingga tepi cakrawala
+                 LULUH ke lapis langit di belakangnya. Tanpa ini,
+                 batas langit-daratan tampak sebagai garis lurus keras. -->
+            <linearGradient id="gFade" gradientUnits="userSpaceOnUse" x1="0" y1="150" x2="0" y2="520">
+              <stop offset="0"    stop-color="#000000"/>
+              <stop offset="0.45" stop-color="#7a7a7a"/>
+              <stop offset="1"    stop-color="#ffffff"/>
+            </linearGradient>
+            <mask id="mHorizon" maskUnits="userSpaceOnUse" x="0" y="0" width="3800" height="1600">
+              <rect x="0" y="0" width="3800" height="1600" fill="url(#gFade)"/>
+            </mask>
+          </defs>
+
+          <!-- ================= SEMUA DARATAN, DI DALAM MASK ================= -->
+          <g mask="url(#mHorizon)">
+
+            <!-- ---- daratan dasar ----
+                 Tepi atasnya sengaja LURUS di y=150, sama persis dengan
+                 titik awal mask di atas. Kalau tepinya bergelombang,
+                 sebagian tepi jatuh di area mask yang sudah setengah
+                 pekat dan muncul garis keras di cakrawala. -->
+            <rect x="0" y="150" width="3800" height="1450" fill="url(#gLand)"/>
+
+            <!-- ---- punggungan paling jauh (larut ke dalam kabut) ---- -->
+            <g opacity="0.55">
+              <path d="M700,300 Q 940,196 1180,262 Q 1400,322 1600,236 Q 1800,158 2020,256
+                       Q 2220,342 2440,242 Q 2660,152 2900,264 Q 3140,362 3380,252
+                       Q 3600,154 3800,256 L3800,400 L700,400 Z" fill="#5f8599"/>
+              <path d="M940,340 Q 1200,256 1440,318 Q 1700,386 1920,302 Q 2160,216 2400,320
+                       Q 2660,416 2900,312 Q 3160,198 3420,320 Q 3620,414 3800,326
+                       L3800,440 L940,440 Z" fill="#83a7b8" opacity="0.7"/>
+            </g>
+
+            <!-- ---- perbukitan jauh (di belakang danau) ---- -->
+            <path d="M2260,470 C 2400,338 2580,272 2740,264 C 2910,272 3090,342 3230,470 Z"
+                  fill="url(#gHillFar)" opacity="0.9"/>
+            <path d="M3140,498 C 3268,376 3412,320 3536,314 C 3660,320 3760,372 3800,452
+                     L3800,502 Z" fill="url(#gHillFar)" opacity="0.85"/>
+            <path d="M1900,462 C 2010,352 2140,300 2260,296 C 2382,300 2496,354 2580,462 Z"
+                  fill="url(#gHillFar)" opacity="0.8"/>
+
+            <!-- ---- perbukitan tengah ---- -->
+            <ellipse cx="1720" cy="948" rx="380" ry="42" fill="#23503a" opacity="0.35"/>
+            <path d="M1330,946 C 1436,700 1580,586 1722,572 C 1866,586 1990,704 2072,946 Z"
+                  fill="url(#gHill)"/>
+
+            <ellipse cx="2260" cy="876" rx="278" ry="32" fill="#23503a" opacity="0.32"/>
+            <path d="M1990,872 C 2068,712 2168,640 2264,632 C 2362,640 2448,714 2510,872 Z"
+                  fill="url(#gHill)"/>
+
+            <ellipse cx="1352" cy="1244" rx="242" ry="30" fill="#23503a" opacity="0.3"/>
+            <path d="M1128,1240 C 1194,1096 1278,1030 1362,1024 C 1448,1030 1524,1098 1576,1240 Z"
+                  fill="url(#gHill)"/>
+
+            <!-- ================= LAUT (Ocean Journey) ================= -->
+            <path id="sea"
+                  d="M0,150 L1250,150
+                     C 1300,300 1240,430 1120,520
+                     C 1000,610 880,690 860,820
+                     C 840,950 920,1060 1010,1160
+                     C 1100,1260 1160,1400 1170,1600
+                     L0,1600 Z"
+                  fill="url(#gSea)"/>
+
+            <!-- pantai + buih -->
+            <path id="coast"
+                  d="M1250,150 C 1300,300 1240,430 1120,520 C 1000,610 880,690 860,820
+                     C 840,950 920,1060 1010,1160 C 1100,1260 1160,1400 1170,1600"
+                  fill="none" stroke="#ecdcb6" stroke-width="30" stroke-linecap="round" opacity="0.85"/>
+            <use href="#coast" fill="none" stroke="#f7f2e4" stroke-width="8"
+                 stroke-linecap="round" stroke-dasharray="44 38" opacity="0.6"/>
+
+            <!-- kilau permukaan laut -->
+            <g opacity="0.16" fill="#e8f7ff">
+              <ellipse cx="380" cy="360" rx="240" ry="14"/>
+              <ellipse cx="640" cy="560" rx="176" ry="11"/>
+              <ellipse cx="300" cy="880" rx="206" ry="13"/>
+              <ellipse cx="560" cy="1220" rx="256" ry="16"/>
+            </g>
+
+            <!-- riak ombak (dibuat oleh script.js) -->
+            <g id="waves" fill="none" stroke="#dff2f7" stroke-width="7" stroke-linecap="round"></g>
+
+            <!-- perahu kecil -->
+            <g transform="translate(770 620) scale(0.92)">
+              <path d="M-44,10 L44,10 L29,32 L-29,32 Z" fill="#f4e9d2"/>
+              <path d="M0,10 L0,-44 L36,4 Z" fill="#ffffff" opacity="0.95"/>
+              <path d="M-52,42 q 52,-13 104,0" fill="none" stroke="#dff2f7" stroke-width="6" opacity="0.6"/>
+            </g>
+
+            <!-- 3 titik cahaya = isyarat 3 platform di dalam Ocean Journey -->
+            <g class="seedDots" fill="#c7f4ff">
+              <circle cx="250" cy="450" r="10"/>
+              <circle cx="640" cy="1010" r="10"/>
+              <circle cx="380" cy="1310" r="10"/>
+            </g>
+
+            <!-- ================= DANAU LEMBAYUNG ================= -->
+            <path id="lake"
+                  d="M2496,806 C 2506,716 2648,646 2842,622 C 3006,602 3196,608 3330,644
+                     C 3428,670 3474,730 3452,796 C 3428,868 3300,930 3140,962
+                     C 2988,992 2790,988 2662,946 C 2552,910 2486,862 2496,806 Z"
+                  fill="url(#gLake)"/>
+            <!-- air yang lebih dalam di tengah -> danau tidak terlihat rata -->
+            <path d="M2666,846 C 2700,782 2846,736 2996,724 C 3116,714 3232,730 3310,762
+                     C 3372,788 3384,826 3352,862 C 3312,906 3184,938 3052,950
+                     C 2922,962 2790,944 2716,912 C 2666,890 2650,868 2666,846 Z"
+                  fill="#241a44" opacity="0.4"/>
+            <use href="#lake" fill="none" stroke="#e8cfae" stroke-width="10" opacity="0.3"/>
+
+            <!-- pantulan senja di permukaan -->
+            <g opacity="0.2" fill="#ffcfae">
+              <ellipse cx="2760" cy="700" rx="120" ry="7"/>
+              <ellipse cx="3120" cy="672" rx="146" ry="8"/>
+              <ellipse cx="3300" cy="878" rx="112" ry="7"/>
+              <ellipse cx="2760" cy="928" rx="132" ry="8"/>
+            </g>
+
+            <!-- pulau di tengah danau -->
+            <path id="island"
+                  d="M2790,806 C 2796,760 2868,728 2964,722 C 3058,716 3132,742 3144,784
+                     C 3156,828 3100,864 3004,874 C 2904,884 2824,858 2798,828
+                     C 2790,820 2788,812 2790,806 Z"
+                  fill="#3f7857"/>
+            <use href="#island" fill="none" stroke="#efd6b4" stroke-width="7" opacity="0.4"/>
+
+            <!-- bukit di atas pulau : titik fokus sisi kanan -->
+            <ellipse cx="2966" cy="690" rx="300" ry="230" fill="url(#gGlow)"/>
+            <ellipse cx="2960" cy="814" rx="134" ry="22" fill="#1f4a37" opacity="0.3"/>
+            <path d="M2832,808 C 2856,744 2888,666 2942,616 C 2962,600 2974,600 2990,618
+                     C 3028,662 3062,744 3088,804 C 3030,826 2892,828 2832,808 Z"
+                  fill="url(#gPeak)"/>
+            <path d="M2956,610 C 2936,676 2922,748 2916,814" fill="none"
+                  stroke="#96cca6" stroke-width="6" stroke-linecap="round" opacity="0.3"/>
+
+            <!-- 4 titik cahaya = isyarat 4 platform di dalam Lake of Lembayung -->
+            <g class="seedDots" fill="#ffd9b0">
+              <circle cx="2620" cy="850" r="10"/>
+              <circle cx="3258" cy="694" r="10"/>
+              <circle cx="3330" cy="884" r="10"/>
+              <circle cx="2900" cy="952" r="10"/>
+            </g>
+
+            <!-- ================= JALAN SETAPAK : menghubungkan dua dunia ================= -->
+            <path d="M1120,1290 C 1360,1216 1520,1288 1740,1224 C 1970,1158 2064,1246 2276,1180
+                     C 2452,1126 2548,1046 2600,946"
+                  fill="none" stroke="#e7d3ab" stroke-width="11"
+                  stroke-linecap="round" stroke-dasharray="28 30" opacity="0.5"/>
+
+            <!-- ================= POHON (dibuat oleh script.js) ================= -->
+            <g id="trees"></g>
+
+            <!-- ================= RONA & BAYANG ================= -->
+            <rect x="0" y="120" width="3800" height="1480" fill="url(#gDusk)" pointer-events="none"/>
+            <rect x="0" y="1120" width="3800" height="480" fill="url(#gVign)" pointer-events="none"/>
+          </g>
+        </svg>
+
+        <!-- ---------- Titik henti scroll-snap (koordinat mengikuti peta) ---------- -->
+        <b class="snap" style="--sx:20.3%" data-stop="0"></b>
+        <b class="snap" style="--sx:50%"   data-stop="1"></b>
+        <b class="snap" style="--sx:78.05%" data-stop="2"></b>
+
+        <!-- ---------- Penanda lokasi di atas peta ----------
+             aria-hidden karena tautan yang sama sudah tersedia di kartu
+             bawah; ini hanya jalan pintas visual saat diketuk. -->
+        <a class="pin pin--ocean" id="pinOcean" data-stop="0" data-world="ocean" href="ocean-journey/index.html"
+           aria-hidden="true" tabindex="-1" style="--x:20.3%; --y:33%"><i></i></a>
+        <a class="pin pin--lake" id="pinLake" data-stop="2" data-world="lake" href="lake-lembayung/index.html"
+           aria-hidden="true" tabindex="-1" style="--x:78.05%; --y:35.4%"><i></i></a>
+
+        <!-- ---------- Panel tengah : sambutan ---------- -->
+        <div class="beranda" style="--x:50%; --y:12%">
+          <p class="beranda__eyebrow">Selamat datang di</p>
+          <h1 class="beranda__title">Narrative&nbsp;Learn</h1>
+          <p class="beranda__desc">Dua dunia, tujuh perjalanan.</p>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ============ LAPIS 3 : DEPAN (paling dekat, gerak paling cepat) ============ -->
+    <div class="layer layer--fore" data-speed="1.35">
+      <div class="art art--fore">
+        <svg class="deco" id="foreDeco" viewBox="0 0 3800 600" preserveAspectRatio="none" aria-hidden="true"></svg>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- =========================================================
+     CHROME : elemen UI yang menempel di layar
+     ---------------------------------------------------------
+     Kartu sengaja TIDAK ikut tergulir bersama peta. Dengan cara
+     ini kartu tidak pernah menutupi pulau/perahu, tidak pernah
+     terpotong di tepi layar, dan selalu terjangkau ibu jari.
+     ========================================================= -->
+
+<!-- Nama siswa: penanda kecil, ketuk untuk mengubah -->
+<button class="student-chip" id="studentChip" type="button" hidden></button>
+
+<!-- =========================================================
+     LAYAR IDENTITAS
+     ---------------------------------------------------------
+     Muncul sekali di awal. Menulis nl_student_v1 = {name, class},
+     kunci yang SUDAH dibaca platform level 3 untuk menyapa siswa
+     dan untuk mengisi kode hasil yang disalin ke guru. Tanpa ini,
+     kode hasil terkirim tanpa nama dan guru tidak tahu itu milik
+     siapa.
+     ========================================================= -->
+<div class="idgate" id="idGate" role="dialog" aria-modal="true" aria-labelledby="idGateTitle" hidden>
+  <div class="idgate__panel">
+    <p class="idgate__eyebrow">Sebelum mulai</p>
+    <h2 class="idgate__title" id="idGateTitle">Siapa namamu?</h2>
+    <p class="idgate__desc">Gurumu memakai ini untuk mengenali hasil belajarmu. Tersimpan di HP ini saja, tidak dikirim ke mana pun.</p>
+
+    <label class="idgate__label" for="idNama">Nama lengkap</label>
+    <input class="idgate__input" id="idNama" type="text" autocomplete="name"
+           maxlength="60" enterkeyhint="next" placeholder="Nama lengkapmu">
+
+    <label class="idgate__label" for="idKelas">Kelas</label>
+    <input class="idgate__input" id="idKelas" type="text"
+           maxlength="24" enterkeyhint="done" placeholder="Contoh: XI IPA 2">
+
+    <button class="idgate__btn" id="idSimpan" type="button" disabled>Mulai perjalanan</button>
+    <button class="idgate__skip" id="idLewati" type="button">Lewati untuk sekarang</button>
+  </div>
+</div>
+
+<!-- Tombol menu (jalur cadangan tanpa peta) -->
+<button class="menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="sheet">
+  <span class="menu-btn__bars" aria-hidden="true"><i></i><i></i></span>
+  <span class="menu-btn__label">Menu</span>
+</button>
+
+<!-- Kartu tujuan -->
+<div class="dock" id="dock">
+
+  <a class="dcard dcard--ocean" id="hsOcean" data-stop="0" data-world="ocean" data-total="3" href="ocean-journey/index.html">
+    <span class="dcard__mark" aria-hidden="true"></span>
+    <span class="dcard__body">
+      <span class="dcard__eyebrow">3 perjalanan</span>
+      <span class="dcard__title">Ocean Journey</span>
+      <span class="dcard__desc">Menyeberangi samudra makna.</span>
+      <!-- Diisi script.js: status ketujuh platform level 3.
+           Penunjuk keadaan, bukan tautan — pintu ke sana tetap
+           lewat hub dunia ini. -->
+      <span class="dcard__stops" aria-hidden="true"></span>
+    </span>
+    <span class="dcard__go" aria-hidden="true">
+      <svg class="ico ico--go" viewBox="0 0 24 24"><path d="M4 12h14M12 6l6 6-6 6"/></svg>
+      <svg class="ico ico--done" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+    </span>
+  </a>
+
+  <a class="dcard dcard--lake" id="hsLake" data-stop="2" data-world="lake" data-total="4" href="lake-lembayung/index.html">
+    <span class="dcard__mark" aria-hidden="true"></span>
+    <span class="dcard__body">
+      <span class="dcard__eyebrow">4 perjalanan</span>
+      <span class="dcard__title">The Lake of Lembayung</span>
+      <span class="dcard__desc">Menyelami danau di balik bukit.</span>
+      <!-- Diisi script.js: status ketujuh platform level 3.
+           Penunjuk keadaan, bukan tautan — pintu ke sana tetap
+           lewat hub dunia ini. -->
+      <span class="dcard__stops" aria-hidden="true"></span>
+    </span>
+    <span class="dcard__go" aria-hidden="true">
+      <svg class="ico ico--go" viewBox="0 0 24 24"><path d="M4 12h14M12 6l6 6-6 6"/></svg>
+      <svg class="ico ico--done" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+    </span>
+  </a>
+
+  <p class="dock__hint" id="dockHint">
+    <span class="arw">‹</span> geser layar untuk memilih <span class="arw">›</span>
+  </p>
+</div>
+
+<!-- Indikator posisi -->
+<nav class="dots" id="dots" aria-label="Lompat ke bagian peta">
+  <button type="button" class="dots__d" data-go="0" aria-label="Ocean Journey"></button>
+  <button type="button" class="dots__d" data-go="1" aria-label="Beranda Narrative Learn"></button>
+  <button type="button" class="dots__d" data-go="2" aria-label="The Lake of Lembayung"></button>
+</nav>
+
+<p class="toast" id="toast" role="status" aria-live="polite"></p>
+
+<!-- Panel daftar platform -->
+<div class="sheet-backdrop" id="sheetBackdrop" hidden></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" hidden>
+  <div class="sheet__grip" aria-hidden="true"></div>
+  <h2 class="sheet__title" id="sheetTitle">Pilih perjalananmu</h2>
+  <a class="sheet__item sheet__item--ocean" id="lnkOcean" data-world="ocean" href="ocean-journey/index.html">
+    <span class="sheet__mark" aria-hidden="true"></span>
+    <span>
+      <strong>Ocean Journey</strong>
+      <em>3 platform · menyeberangi samudra teks dan makna</em>
+    </span>
+    <span class="sheet__go" aria-hidden="true">→</span>
+  </a>
+  <a class="sheet__item sheet__item--lake" id="lnkLake" data-world="lake" href="lake-lembayung/index.html">
+    <span class="sheet__mark" aria-hidden="true"></span>
+    <span>
+      <strong>The Lake of Lembayung</strong>
+      <em>4 platform · menyelami danau di balik bukit senja</em>
+    </span>
+    <span class="sheet__go" aria-hidden="true">→</span>
+  </a>
+  <!-- Pintu kedua. Sengaja kecil dan paling bawah: ini bukan tujuan siswa,
+       tapi guru harus bisa menemukannya tanpa mengetik alamat. Panelnya
+       sendiri berpagar PIN. Hapus baris ini kalau kamu lebih suka guru
+       membuka teacher/index.html langsung. -->
+  <a class="sheet__guru" href="teacher/index.html">Panel Guru</a>
+
+  <button class="sheet__close" id="sheetClose" type="button">Tutup</button>
+</div>
+
+<script src="shared/progress.js"></script>
+<script src="script.js"></script>
+</body>
+</html>

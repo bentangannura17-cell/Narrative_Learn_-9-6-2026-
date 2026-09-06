@@ -1,0 +1,1088 @@
+/* ============================================================
+   Muara Jati — NarrativeLearn  (re-design)
+   /lake-lembayung/muara-jati/
+   Template & token sama persis dengan modul Bukit Camar.
+
+   Gaya: editorial/klasik — dasar kertas hangat-netral, tinta
+   gelap, SATU aksen emas yang dipakai sebagai GARIS & GORESAN,
+   bukan bidang penuh. Tombol bergaris (outline), kartu bergaris
+   tipis, bayangan hampir tak terasa, foto dipasang seperti plat
+   di halaman buku (.plate). Tanpa CDN: font memakai tumpukan
+   serif sistem.
+
+   Struktur file:
+     1. Token
+     2. Dasar & elemen bersama (rule, eyebrow, btn, field, plate)
+     3. Locked page
+     4. Welcome 1 & 2
+     5. Navigator (satu baris)
+     6. Gate (review video & hati habis)
+     7. Story / material
+     8. Activity page (instruksi & tombol aksi menyatu di halaman)
+     9. Dialog (ask question) & coach mark spotlight
+    10. Transisi & reduced-motion
+    11. MODE PENGEMBANG (hapus sebelum launching)
+   ============================================================ */
+
+/* ---------------- 1. Token ---------------- */
+:root {
+  --bg: #f3f2f2;
+  --surface: #faf9f8;
+  --surface-2: #eae9e9;
+  --ink: #201f1d;
+  --ink-2: #605d5d;
+  --ink-3: #7d7979;
+  --divider: rgba(32, 31, 29, 0.16);
+  --hairline: rgba(32, 31, 29, 0.28);
+
+  --accent: #b68235;
+  --accent-100: #fff3e4;
+  --accent-200: #ffe3bf;
+  --accent-600: #a06f24;
+  --accent-700: #7d5411;
+
+  --good: #4a6a3d;
+  --good-100: #eef1e8;
+  --bad: #97402f;
+  --bad-100: #f6ebe6;
+
+  --space-1: 4.6px;
+  --space-2: 9.2px;
+  --space-3: 13.8px;
+  --space-4: 18.4px;
+  --space-6: 27.6px;
+  --space-8: 36.8px;
+
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 7px;
+
+  --shadow-sm: 0 1px 2px rgba(45, 43, 43, 0.14);
+  --shadow-md: 0 3px 10px rgba(45, 43, 43, 0.16);
+  --shadow-lg: 0 12px 32px rgba(45, 43, 43, 0.22);
+
+  /* Cormorant Garamond / Lora tidak tersedia tanpa CDN — dua tumpukan
+     serif sistem yang berbeda cukup untuk menjaga pasangan judul/isi. */
+  --font-head: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+  --font-body: Georgia, "Times New Roman", "Liberation Serif", serif;
+
+  --measure: 62ch;
+
+  /* Revisi R2: sesi video memakai latar putih murni — sengaja
+     dipisahkan dari --bg (#f3f2f2) supaya bidang di sekitar video
+     terbaca sebagai satu bidang bersih, bukan abu-abu kertas. */
+  --video-bg: #ffffff;
+
+  /* Tambahan T5 (lihat juga R6 poin 5): --nav-h: 92px DIHAPUS di sini.
+     grep -n "nav-h" style.css script.js index.html sebelum revisi ini
+     hanya menemukan definisinya sendiri — tidak ada `var(--nav-h)`,
+     `calc(var(--nav-h))`, atau sejenisnya di file mana pun. Navigator
+     platform ini cuma satu baris (tinggi sebenarnya ±50px), jadi 92px
+     memang sisa pola dua-tingkat dari modul lain. Nilai yang tidak
+     dipakai tapi dibiarkan adalah bom waktu: begitu ada elemen sticky
+     baru yang "kebetulan" memakainya, posisinya akan meleset ~40px.
+     Dihapus, bukan dikoreksi ke nilai sebenarnya, karena memang tidak
+     ada satu pun konsumen yang perlu dipertahankan. */
+}
+
+/* ---------------- 2. Dasar & elemen bersama ---------------- */
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+
+/* Revisi R6: body sudah punya -webkit-text-size-adjust: 100% (lihat di
+   bawah), tapi html belum — beberapa browser mobile lama membaca
+   propertinya dari root, bukan dari body. Mencegah browser membesarkan
+   huruf sendiri saat perangkat diputar ke landscape. */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+
+/* Revisi R5: penjaga terakhir. Ini SENGAJA `clip`, bukan `hidden`:
+   `hidden` pada html/body mematikan position:sticky di sebagian
+   browser, dan navigator ini bergantung padanya. */
+html { overflow-x: clip; }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.68;
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+}
+
+h1, h2, h3 { font-family: var(--font-head); font-weight: 600; line-height: 1.16; margin: 0 0 var(--space-3); }
+p { margin: 0 0 var(--space-4); text-wrap: pretty; }
+a { color: var(--accent-700); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+a:hover { color: var(--accent-600); }
+button { font-family: inherit; color: inherit; }
+[hidden] { display: none !important; }
+img, svg { display: block; max-width: 100%; }
+::selection { background: var(--accent-200); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.rule { height: 0; border: 0; border-top: 1px solid var(--divider); margin: var(--space-4) 0; }
+
+.eyebrow {
+  display: block;
+  font-family: var(--font-head);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent-700);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 46px;
+  padding: var(--space-2) var(--space-6);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--accent);
+  background: transparent;
+  color: var(--accent-700);
+  font-family: var(--font-head);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.16s ease, border-color 0.16s ease, color 0.16s ease;
+}
+.btn:hover { background: rgba(182, 130, 53, 0.09); border-color: var(--accent-600); }
+.btn:active { background: rgba(182, 130, 53, 0.16); border-color: var(--accent-700); color: var(--accent-700); }
+.btn:disabled { opacity: 0.45; cursor: default; }
+.btn-ghost { border-color: transparent; color: var(--ink-2); }
+.btn-ghost:hover { background: rgba(32, 31, 29, 0.06); border-color: transparent; color: var(--ink); }
+
+.field { display: block; }
+.field > span {
+  display: block;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  margin-bottom: var(--space-2);
+}
+.input {
+  width: 100%;
+  padding: var(--space-3);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.6;
+  resize: vertical;
+}
+.input:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+
+/* Plat foto: mat tipis warna permukaan + garis rambut, sedikit
+   digradasi hangat supaya terasa seperti gambar sisipan buku. */
+.plate {
+  position: relative;
+  padding: 6px;
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  border-radius: var(--radius-sm);
+}
+.plate img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: sepia(0.12) saturate(0.92) contrast(1.02);
+}
+.plate-empty {
+  display: none;
+  position: absolute;
+  inset: 6px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--space-4);
+  text-align: center;
+  border: 1px dashed var(--hairline);
+  color: var(--ink-3);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+}
+.plate.is-empty .plate-empty { display: flex; }
+.plate.is-empty img { visibility: hidden; }
+
+/* ---------------- 3. Locked page ---------------- */
+.locked {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: var(--space-6);
+  background: var(--bg);
+}
+.locked-card {
+  max-width: 430px;
+  padding: var(--space-8) var(--space-6);
+  border: 1px solid var(--divider);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+.locked-title { font-size: 30px; font-weight: 400; margin-top: var(--space-2); }
+.locked-body { color: var(--ink-2); }
+
+/* ---------------- 4. Welcome 1 & 2 ---------------- */
+/* Revisi R6: height dipatok mati -> min-height, dan overflow:hidden
+   dilonggarkan. Di jendela pendek isi welcome-2 sebelumnya terpotong
+   diam-diam — paragraf "Why it helps you" sering tidak pernah terbaca. */
+.welcome {
+  position: relative;
+  min-height: 100dvh;
+  cursor: pointer;
+  touch-action: manipulation;
+  background: var(--bg);
+}
+.welcome-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.4; }
+
+.welcome-1 { display: grid; grid-template-rows: 1fr auto; min-height: 100dvh; }
+.welcome-1-inner {
+  position: relative;
+  z-index: 1;
+  align-self: center;
+  padding: 0 var(--space-6) 12dvh;
+  text-align: center;
+}
+.welcome-1-line-1 {
+  margin: 0 0 var(--space-2);
+  font-family: var(--font-head);
+  font-size: 17px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+/* Revisi R6: batas bawah clamp diturunkan dari 44px ke 28px dan
+   koefisien vw dari 15 ke 10.5. Di 320px, 10.5vw = 33,6px sehingga
+   "NarrativeLearn" muat utuh dalam lebar baca yang tersisa. Batas
+   atas 76px tidak diubah, jadi tampilan desktop persis seperti
+   sekarang. break-word hanya jaring pengaman untuk font fallback
+   yang lebih lebar dari perkiraan. */
+.welcome-1-line-2 {
+  margin: 0;
+  font-size: clamp(28px, 10.5vw, 76px);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 1.06;
+  color: var(--ink);
+  max-width: 100%;
+  overflow-wrap: break-word;
+}
+.welcome-1-thin { font-style: italic; color: var(--accent-700); }
+.welcome-1-line-3 {
+  margin: var(--space-3) 0 0;
+  font-size: 15px;
+  letter-spacing: 0.04em;
+  color: var(--ink-2);
+}
+.welcome-1-inner::after {
+  content: "";
+  display: block;
+  width: 56px;
+  height: 1px;
+  margin: var(--space-6) auto 0;
+  background: var(--accent);
+}
+
+.welcome-tap {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  padding: 0 0 max(var(--space-6), env(safe-area-inset-bottom));
+  text-align: center;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  animation: pulse 2.6s ease-in-out infinite;
+}
+@keyframes pulse { 0%, 100% { opacity: 0.45; } 50% { opacity: 1; } }
+
+/* Revisi R6: grid-template-rows memakai minmax(0, …) supaya baris
+   tengah (isi) boleh MENGECIL sampai 0 alih-alih memaksa tinggi 1fr
+   penuh di jendela pendek — itulah yang membuat .welcome-2-body bisa
+   digulir (lihat aturan overflow-y di bawah) alih-alih terpotong diam-diam. */
+.welcome-2 { display: grid; grid-template-rows: minmax(0, 22dvh) minmax(0, 1fr) auto; min-height: 100dvh; }
+.welcome-2-plate { border-left: 0; border-right: 0; border-top: 0; border-radius: 0; padding: 0; }
+.welcome-2-plate img { height: 22dvh; }
+.welcome-2-plate .plate-empty { inset: 0; border: 0; border-bottom: 1px solid var(--divider); }
+
+/* Revisi R6: overflow: hidden -> overflow-y: auto. Sebelumnya paragraf
+   "Why it helps you" bisa terpotong tanpa jejak apa pun di jendela
+   pendek (mis. Live Server yang belum dimaksimalkan, ±620px). Sekarang
+   isi yang tidak muat boleh digulir; overscroll-behavior: contain
+   mencegah gulir ini "bocor" jadi pull-to-refresh di beberapa browser
+   mobile. Konsekuensinya ditangani di script.js: gulir di dalam area
+   ini tidak boleh lagi salah terbaca sebagai tap-untuk-lanjut (lihat
+   onTap() / Revisi R6). */
+.welcome-2-body {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: var(--space-6) var(--space-6) var(--space-4);
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+}
+.welcome-2-intro p { margin: var(--space-3) 0 0; color: var(--ink-2); text-align: justify; hyphens: auto; }
+
+.roadmap {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-3);
+  transform: translateX(24px);
+  opacity: 0;
+  transition: transform 0.55s ease, opacity 0.55s ease;
+}
+.roadmap.is-visible { transform: translateX(0); opacity: 1; }
+.roadmap-step {
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  grid-template-areas: "num label" "num hint";
+  align-items: baseline;
+  column-gap: var(--space-3);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--divider);
+}
+.roadmap-num {
+  grid-area: num;
+  align-self: start;
+  font-family: var(--font-head);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
+.roadmap-label { grid-area: label; font-family: var(--font-head); font-size: 18px; }
+.roadmap-hint { grid-area: hint; font-size: 13px; color: var(--ink-3); }
+
+/* ---------------- 5. Navigator (satu baris) ---------------- */
+.shell { min-height: 100dvh; }
+
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--bg);
+  padding: 8px var(--space-4) 10px;
+}
+/* Revisi R4: dengan kolom merek hilang, .nav-row tinggal empat kolom
+   di mobile. Menulis ulang template lebih bersih daripada membiarkan
+   kolom nol yang tetap membayar gap. Lebar dikunci ke lebar baca
+   .stage mulai 1024px lewat aturan terpisah — lihat Revisi R6 poin 4. */
+.nav-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* Revisi R4: caption merek disembunyikan SEPENUHNYA di mobile.
+   Sebelumnya ia disingkat jadi "NL" (.nav-brand-short) — sudah lebih
+   baik daripada caption penuh, tapi singkatan itu tidak menyampaikan
+   apa pun kepada siswa yang sudah tahu sedang membuka apa, dan tetap
+   memakan satu kolom grid. Di desktop (layar guru & penguji) caption
+   penuh berguna sebagai penanda produk saat diproyeksikan, jadi tetap
+   ada — lihat override 768px di bawah. */
+.nav-brand {
+  display: none;
+  font-family: var(--font-head);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.nav-brand-full { display: none; }
+.nav-brand-short { display: none; }
+
+.nav-hearts { display: flex; align-items: center; gap: 2px; }
+.nav-heart { width: 10px; height: 10px; flex: none; }
+.nav-heart svg { width: 100%; height: 100%; }
+.nav-heart.is-full { color: var(--accent); }
+.nav-heart.is-broken { color: var(--divider); }
+
+.nav-student {
+  font-family: var(--font-head);
+  font-size: 12px;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  /* Revisi R5: dinaikkan dari 16ch. Setelah caption merek hilang di
+     mobile (R4), ruang di navigator bertambah dan nama siswa boleh
+     lebih utuh. Satuan vw dipakai supaya batasnya mengikuti lebar
+     layar, bukan lebar huruf yang berubah tiap font. Nilai 30ch untuk
+     desktop sudah benar sejak sebelum revisi ini — dipertahankan lewat
+     override 768px di bawah. */
+  max-width: 34vw;
+  justify-self: end;
+}
+
+/* progress: garis 2px menempel di tepi bawah nav, bukan baris sendiri */
+.nav-progress { position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--divider); }
+.nav-progress-fill { display: block; width: 0; height: 100%; background: var(--accent); transition: width 0.5s ease; }
+
+/* Tambahan T2: gap dinaikkan dari 2px ke var(--space-2, ≈9.2px). Empat
+   tombol 32px berjarak 2px punya area sentuh 44px (lihat .nav-btn::after
+   di bawah) yang saling tumpang tindih ~10px — cukup untuk salah
+   sasaran antar tombol yang bersebelahan. Pada 9.2px, tumpang tindihnya
+   turun ke ~3px, jauh lebih aman untuk jari. */
+.nav-actions { display: flex; align-items: center; gap: var(--space-2); justify-self: end; }
+.nav-btn {
+  position: relative; /* Tambahan T2: jangkar untuk ::after 44px di bawah */
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--ink-2);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.nav-btn svg { width: 18px; height: 18px; }
+.nav-btn:hover { background: rgba(182, 130, 53, 0.1); color: var(--accent-700); border-color: var(--divider); }
+.nav-btn:active { background: rgba(182, 130, 53, 0.18); color: var(--accent-700); }
+.nav-btn.is-on { color: var(--accent-700); border-color: var(--accent); }
+/* Tambahan T2: kotak ikon tetap 32px secara visual, tetapi area
+   sentuhnya diperluas jadi 44px lewat pseudo-element. Cara ini
+   dipilih supaya tinggi navigator tidak bertambah — .nav-btn dulu
+   32×32px, paling kecil dari semua platform. */
+.nav-btn::after {
+  content: "";
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 44px; height: 44px;
+}
+
+/* Revisi R5: bilah nyawa di 320px sudah aman (.nav-heart di sini 10px,
+   jadi 7×10 + 6×2 = 82px), tapi beri ambang untuk tombol navigator di
+   layar yang lebih sempit lagi supaya empat tombol + bilah nyawa tidak
+   berebut ruang dengan .nav-student. */
+@media (max-width: 359px) {
+  .nav-btn { width: 30px; height: 30px; }
+  .nav-btn svg { width: 17px; height: 17px; }
+}
+
+@media (min-width: 768px) {
+  .nav { padding: 8px var(--space-6) 10px; }   /* hanya horizontal yang melebar */
+  /* Revisi R4: caption merek kembali tampil penuh di desktop, dan
+     .nav-row kembali ke lima kolom sekarang kolom merek hadir lagi. */
+  .nav-brand { display: inline; }
+  .nav-brand-full { display: inline; }
+  .nav-brand-short { display: none; }
+  .nav-row { grid-template-columns: auto auto 1fr auto auto; }
+  .nav-heart { width: 12px; height: 12px; }
+  .nav-student { max-width: 30ch; }
+}
+
+/* Revisi R5: JANGAN memberi min-width tetap pada elemen navigator di
+   platform ini, dan JANGAN menambahkan .nav-info sebagai baris kedua
+   permanen di bawah nama siswa. Kombinasi caption merek yang hilang
+   di mobile (R4) + .nav-student ber-ellipsis + tanpa .nav-info inilah
+   yang membuat navigator di sini tidak pernah meluber ke kanan. Empat
+   platform lain justru mengalami pita kosong di pojok kanan karena
+   memakai min-width:96px dan .nav-info sebagai baris kedua permanen. */
+
+/* Revisi R6: di layar lebar, isi navigator mengikuti ukuran baca yang
+   sama dengan .stage. Latar navigator tetap membentang penuh supaya
+   bilah atas tetap terbaca sebagai satu bidang.
+   Karena .nav adalah pembungkus dan .nav-row yang membawa grid,
+   pembatasan lebar dipasang di .nav-row. */
+@media (min-width: 1024px) {
+  .nav-row { max-width: 760px; margin-inline: auto; }
+}
+
+/* ---------------- 6. Gate: tunggu guru & nyawa habis ---------------- */
+/* Revisi R2: .gate SENGAJA tetap gelap, tidak ikut diputihkan seperti
+   sesi video. Kontras gelap ini menandai "berhenti, lihat guru" —
+   berbeda maksud dari latar video yang cuma perlu bersih dan netral. */
+.gate {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: #16151400;
+  background: #161514;
+  color: #f3f2f2;
+  animation: fade 0.3s ease;
+}
+.gate-screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  padding: var(--space-8);
+  text-align: center;
+}
+.gate-eyebrow { color: var(--accent-200); }
+.gate-caption { margin: 0; max-width: 34ch; font-size: 19px; line-height: 1.6; }
+.gate-caption-dim { color: rgba(243, 242, 242, 0.6); font-size: 14px; }
+
+/* Revisi R2: .gate-video / .gate-video-el TIDAK dirujuk di index.html
+   maupun script.js manapun (diperiksa lewat
+   grep -n "gate-video" index.html script.js) — sisa pola lama dari
+   modul lain yang menampilkan video DI DALAM gerbang. Muara Jati
+   menampilkan videonya di #videoPage, bukan di #gate. Dibiarkan apa
+   adanya, tidak dihapus, sampai ada konfirmasi dari pemilik proyek. */
+.gate-video {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: var(--space-4);
+}
+.gate-video-el { max-width: 100%; max-height: 100%; background: #000; border: 1px solid rgba(243, 242, 242, 0.18); }
+
+
+/* ---------------- 7. Halaman (video, activity, quiz, result) ---------------- */
+.stage { max-width: 680px; margin: 0 auto; padding: var(--space-6) var(--space-4) var(--space-8); }
+.page-title { font-size: clamp(26px, 7vw, 36px); font-weight: 400; margin: var(--space-2) 0 0; }
+.page-note { margin: var(--space-4) 0 0; font-size: 14px; color: var(--ink-3); }
+.section-title {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin: var(--space-8) 0 var(--space-3);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--divider);
+}
+
+.page-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); }
+.dots { display: flex; align-items: center; gap: 5px; }
+.dot { width: 5px; height: 5px; border-radius: 50%; border: 1px solid var(--accent); }
+.dot.is-done { background: var(--accent); }
+.dot.is-now { width: 7px; height: 7px; background: var(--accent-200); }
+
+.video-plate { margin: var(--space-4) 0 0; aspect-ratio: 16 / 9; }
+.video-el { width: 100%; height: 100%; background: var(--video-bg); object-fit: contain; }
+
+/* Revisi R2: seluruh bidang halaman video ikut putih, dibentangkan
+   ke tepi layar sementara isinya tetap dalam ukuran baca .stage. */
+.page-video {
+  background: var(--video-bg);
+  margin-inline: calc(50% - 50vw);
+  padding-inline: max(var(--space-4), calc(50vw - 340px));
+  padding-block: var(--space-6);
+}
+.page-video .video-plate { background: var(--video-bg); border-color: var(--divider); }
+
+/* Kartu urutan: baris tipis bernomor — semua muat satu layar. */
+.cards { list-style: none; margin: var(--space-4) 0 0; padding: 0; display: grid; gap: var(--space-2); }
+.card-row {
+  display: grid;
+  /* Revisi R7: kolom pertama dinaikkan dari 22px ke 34px supaya cocok
+     dengan .card-grip yang diperlebar di bawah — kolom grid dengan
+     lebar tetap TIDAK ikut melebar sendiri mengikuti kontennya, jadi
+     tanpa perubahan ini ikon grip akan meluber ke luar kolomnya. */
+  grid-template-columns: 34px 26px 1fr auto;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-1);
+  border: 1px solid var(--divider);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  font-size: 14px;
+  line-height: 1.45;
+  transition: border-color 0.15s ease, background 0.15s ease, opacity 0.15s ease;
+}
+.card-row.is-dragging { border-color: var(--accent); box-shadow: var(--shadow-md); opacity: 0.9; }
+.card-row.is-target { border-top: 2px solid var(--accent); }
+.card-row.is-locked { border-color: var(--good); background: var(--good-100); }
+.card-row.is-wrong { border-color: var(--bad); }
+/* Revisi R7: pegangan seret diperlebar dari 22×34px. touch-action:none
+   dipertahankan supaya browser tidak mengambil alih gerakan sebagai
+   gulir halaman — itu justru yang membuat seretan bisa bekerja di
+   mobile. */
+.card-grip {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 44px;
+  color: var(--ink-3);
+  cursor: grab;
+  touch-action: none;
+}
+.card-grip svg { width: 14px; height: 14px; }
+.card-row.is-locked .card-grip { visibility: hidden; }
+.card-order {
+  font-family: var(--font-head);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent);
+  text-align: center;
+}
+.card-text { min-width: 0; overflow-wrap: break-word; } /* Revisi R5 */
+.card-moves { display: flex; flex-direction: column; gap: 6px; }
+/* Revisi R7: tombol naik/turun kartu dulu 26x18px — jauh di bawah
+   ambang aman untuk jari anak, padahal ini salah satu dari hanya dua
+   cara mengurutkan kartu. Ukuran visualnya dinaikkan sedikit, dan
+   area sentuhnya diperluas ke 44px lewat pseudo-element supaya tinggi
+   baris kartu tidak ikut membengkak. Jarak antar tombol dinaikkan
+   supaya area 44px keduanya tidak saling tumpang tindih terlalu jauh. */
+.card-move {
+  position: relative;
+  width: 34px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--divider);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--ink-2);
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+}
+.card-move::after {
+  content: "";
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 44px; height: 44px;
+}
+.card-move:hover:not(:disabled) { border-color: var(--accent); color: var(--accent-700); }
+.card-move:disabled { opacity: 0.35; cursor: default; }
+.card-row.is-locked .card-moves { visibility: hidden; }
+
+/* Revisi R7: dua tombol 34×26px bertumpuk (6px + 6px gap) akan
+   menambah tinggi kolom .card-moves jadi 26+6+26=58px — lebih tinggi
+   dari .card-grip yang kini 44px, sehingga TINGGI SELURUH BARIS ikut
+   ditentukan oleh kolom tombol, bukan grip. Di mobile, di mana ruang
+   layar paling sempit dan sesi 3–4 punya 8 kartu, tombol disusun
+   BERDAMPINGAN alih-alih bertumpuk: tingginya turun jadi 26px, dan
+   baris kembali ditentukan oleh grip (44px) seperti semula. Ikon ▲▼
+   sendiri sudah menunjukkan arah lewat bentuknya, jadi tetap jelas
+   maknanya walau disusun mendatar — tidak perlu diganti ikon lain. */
+@media (max-width: 767px) {
+  .card-moves { flex-direction: row; gap: 8px; }
+}
+
+/* Kuis */
+.quiz-question { font-size: clamp(21px, 5.6vw, 27px); font-weight: 400; margin: var(--space-3) 0 0; }
+.options { display: grid; gap: var(--space-2); margin: var(--space-4) 0 0; }
+.option {
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  align-items: baseline;
+  gap: var(--space-2);
+  width: 100%;
+  min-height: 48px;
+  padding: var(--space-3);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-md);
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.5;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+.option-key { font-family: var(--font-head); color: var(--accent); }
+.option:hover:not(:disabled) { border-color: var(--accent); background: var(--accent-100); }
+.option:disabled { cursor: default; }
+.option.is-correct { border-color: var(--good); background: var(--good-100); color: var(--good); }
+.option.is-wrong { border-color: var(--bad); background: var(--bad-100); color: var(--bad); }
+.quiz-next { width: 100%; margin-top: var(--space-4); }
+
+/* Hasil */
+.steplist, .answerlist { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-2); }
+.step-item {
+  display: grid;
+  grid-template-columns: 26px 1fr auto;
+  align-items: baseline;
+  gap: var(--space-2);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--divider);
+  font-size: 14px;
+}
+.step-item span:first-child { font-family: var(--font-head); font-variant-numeric: tabular-nums; color: var(--accent); }
+.step-mark { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; }
+.step-mark.is-good { color: var(--good); }
+.step-mark.is-bad { color: var(--bad); }
+.answer-item { padding-bottom: var(--space-3); border-bottom: 1px solid var(--divider); font-size: 14px; }
+.answer-item p { margin: 0 0 var(--space-1); }
+.answer-q { font-family: var(--font-head); font-size: 16px; }
+.answer-yours { color: var(--ink-2); }
+.answer-yours em { font-style: italic; }
+.answer-right { color: var(--good); }
+.recap { margin: 0; padding: 0 0 0 var(--space-4); display: grid; gap: var(--space-3); font-size: 14px; color: var(--ink-2); }
+.recap li::marker { color: var(--accent); }
+.result-btn { width: 100%; margin-top: var(--space-6); }
+
+/* Gate: tiga titik menunggu */
+.gate-dots { display: flex; gap: 6px; }
+.gate-dots span {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(243, 242, 242, 0.5);
+  animation: gateDot 1.4s ease-in-out infinite;
+}
+.gate-dots span:nth-child(2) { animation-delay: 0.2s; }
+.gate-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes gateDot { 0%, 100% { opacity: 0.25; } 50% { opacity: 1; } }
+
+/* Nama .blackout dipertahankan supaya HTML & JS tidak perlu diubah,
+   tetapi warnanya kini mengikuti sesi video (Revisi R2). */
+.blackout { position: fixed; inset: 0; z-index: 800; background: var(--video-bg); }
+
+/* Swipe-back: dua zona tak terlihat di tepi kiri & kanan, separuh bawah */
+.swipe-zone { position: fixed; bottom: 0; width: 26px; height: 50dvh; z-index: 15; }
+.swipe-zone-left { left: 0; }
+.swipe-zone-right { right: 0; }
+
+/* Tombol back mengambang — garis rambut, sunyi, ikut sembunyi saat sheet terbuka */
+.float-back {
+  position: fixed;
+  left: var(--space-3);
+  bottom: var(--space-3);
+  z-index: 25;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--divider);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--ink-2);
+  box-shadow: var(--shadow-sm);
+  transition: opacity 0.2s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.float-back svg { width: 18px; height: 18px; }
+.float-back:hover { color: var(--accent-700); border-color: var(--accent); }
+.float-back.is-hidden { opacity: 0; pointer-events: none; }
+
+@media (min-width: 768px) {
+  .stage { max-width: 760px; padding: var(--space-8) var(--space-6) var(--space-8); }
+  .card-row { font-size: 15px; grid-template-columns: 34px 30px 1fr auto; } /* Revisi R7: kolom grip disamakan dengan lebar barunya */
+  .float-back { left: var(--space-6); bottom: var(--space-6); }
+}
+
+/* ---------------- 8. Activity page (inline instructions & actions) ---------------- */
+.act-prompt { margin: var(--space-4) 0 0; font-size: 17px; line-height: 1.6; }
+.act-prompt em { color: var(--accent-700); }
+.act-next { width: 100%; margin-top: var(--space-4); }
+/* Revisi R7: tombol periksa dibuat menempel di bawah supaya siswa
+   tidak perlu menggulir ke ujung daftar setiap kali ingin memeriksa
+   urutannya. Latar solid dipasang supaya kartu di baliknya tidak
+   terbaca menembus tombol. Dipakai oleh TIGA tombol (#actIntroContinueBtn,
+   #actCheckBtn, #actContinueBtn) tapi hanya satu yang pernah terlihat
+   dalam satu halaman pada satu waktu — keduanya yang lain disembunyikan
+   lewat atribut [hidden], jadi tidak ada risiko dua bilah menempel
+   bersamaan. z-index 5 sengaja di bawah .float-back (25) supaya
+   tombol bulat itu tetap terlihat & bisa ditekan di atas bilah ini. */
+@media (max-width: 767px) {
+  .act-next {
+    position: sticky;
+    bottom: 0;
+    z-index: 5;
+    margin-top: var(--space-4);
+    background: var(--bg);
+    padding-block: var(--space-2);
+    padding-bottom: max(var(--space-2), env(safe-area-inset-bottom));
+  }
+}
+
+.feedback {
+  margin: 0 0 var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--divider);
+  border-left: 2px solid var(--ink-3);
+  border-radius: var(--radius-sm);
+  font-size: 15px;
+  line-height: 1.6;
+  animation: rise 0.22s ease;
+}
+.feedback.is-good { border-left-color: var(--good); background: var(--good-100); color: #2f4726; }
+.feedback.is-bad { border-left-color: var(--bad); background: var(--bad-100); color: #6d2e21; }
+
+.scorecard { margin: 0 0 var(--space-2); display: grid; gap: var(--space-2); }
+.scorecard div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--divider);
+}
+.scorecard dt { white-space: nowrap; font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); }
+/* Revisi R5: label seperti "STEPS COMPLETED" + white-space:nowrap bisa
+   memaksa lebar di layar 320px. Diizinkan membungkus hanya di layar
+   paling sempit, bukan dihapus sama sekali, supaya tetap rapi satu
+   baris di layar yang lebih lega. */
+@media (max-width: 359px) { .scorecard dt { white-space: normal; } }
+.scorecard dd { margin: 0; font-family: var(--font-head); font-size: 20px; font-variant-numeric: tabular-nums; }
+
+/* ---------------- Hint: instruksi ringkas pojok kanan atas (Revisi R3) ----------------
+   Menggantikan coach mark di welcome-1, welcome-2, gerbang tunggu, dan
+   halaman video (lihat Revisi R1) — instruksi satu kalimat yang lewat,
+   bukan tur bertahap. z-index 150 dipilih dengan sengaja: di atas .gate
+   (100) dan .nav (20) supaya instruksi tetap terlihat di layar tunggu,
+   tetapi di bawah coach mark (200/250) dan di bawah .blackout (800) /
+   .transition (900) supaya tidak pernah mengambang di atas potongan
+   transisi. */
+.hint-host {
+  position: fixed;
+  top: max(var(--space-3), env(safe-area-inset-top));
+  right: max(var(--space-3), env(safe-area-inset-right));
+  z-index: 150;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-2);
+  max-width: min(300px, calc(100vw - var(--space-8)));
+  pointer-events: none;
+}
+
+.hint {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 7px var(--space-3) 7px var(--space-2);
+  border: 1px solid var(--divider);
+  border-radius: 999px;
+  background: var(--surface);
+  box-shadow: var(--shadow-md);
+  color: var(--ink-2);
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.35;
+  text-align: left;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+.hint::before {
+  content: "";
+  flex: none;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.hint.is-in { opacity: 1; transform: translateY(0); }
+.hint.is-out { opacity: 0; transform: translateY(-6px); }
+
+/* Di atas gerbang gelap (#gate), pil putih terlalu menyilaukan. */
+.hint.is-on-dark {
+  background: rgba(32, 31, 29, 0.92);
+  border-color: rgba(243, 242, 242, 0.24);
+  color: #f3f2f2;
+}
+.hint.is-on-dark::before { background: var(--accent-200); }
+
+@media (min-width: 768px) {
+  .hint { font-size: 14px; padding: 9px var(--space-4) 9px var(--space-3); }
+  .hint-host { max-width: 360px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hint { transition: opacity 0.01ms; transform: none; }
+  .hint.is-in, .hint.is-out { transform: none; }
+}
+
+/* ---------------- 9. Dialog (ask question) & coach mark spotlight ---------------- */
+.dialog-wrap {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  padding: var(--space-4);
+  background: rgba(22, 21, 20, 0.55);
+  animation: fade 0.2s ease;
+}
+.dialog {
+  width: 100%;
+  max-width: 420px;
+  padding: var(--space-6);
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  animation: rise 0.24s ease;
+}
+.dialog-title { font-size: 24px; font-weight: 400; margin: var(--space-2) 0 0; }
+.dialog-body { margin: 0; color: var(--ink-2); }
+.dialog-note { margin: var(--space-2) 0 0; font-size: 12px; color: var(--ink-3); }
+.dialog-actions { display: flex; justify-content: flex-end; gap: var(--space-2); margin-top: var(--space-4); }
+
+/* Coach mark: satu elemen disorot lewat teknik box-shadow (dipakai luas di
+   Intro.js/Shepherd/driver.js), keterangan mengambang di dekatnya. Posisi
+   .coach-hole & .coach-callout dihitung di JS lewat getBoundingClientRect(). */
+.coach-overlay { position: fixed; inset: 0; z-index: 250; }
+.coach-hole {
+  position: absolute;
+  border-radius: var(--radius-md);
+  box-shadow: 0 0 0 9999px rgba(22, 21, 20, 0.6); /* menggelapkan seluruh layar kecuali kotak ini */
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  pointer-events: none;
+  opacity: 1;
+  transition: top 0.28s cubic-bezier(.2,.7,.2,1), left 0.28s cubic-bezier(.2,.7,.2,1),
+              width 0.28s cubic-bezier(.2,.7,.2,1), height 0.28s cubic-bezier(.2,.7,.2,1),
+              opacity 0.2s ease;
+}
+.coach-hole.is-hidden { opacity: 0; }
+
+.coach-callout {
+  position: absolute;
+  max-width: min(300px, 88vw);
+  padding: var(--space-4);
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  animation: rise 0.24s ease;
+}
+.coach-text { margin: var(--space-2) 0 0; color: var(--ink-2); }
+
+/* ---------------- 10. Transisi ---------------- */
+.transition {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  background: var(--bg);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s ease;
+}
+.transition.is-active { opacity: 1; pointer-events: all; }
+
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ---------------- Laptop ke atas ---------------- */
+@media (min-width: 768px) {
+  body { font-size: 17px; }
+  /* Revisi R6: baris ini sebelumnya "26dvh 1fr auto" tanpa minmax(),
+     artinya bug pemotongan yang sama dari R6 poin 2 akan kambuh di
+     jendela lebar TAPI pendek — justru skenario "jendela Live Server
+     belum dimaksimalkan" yang jadi contoh di dokumen revisi, karena
+     jendela dev seperti itu umumnya sudah >= 768px lebar. */
+  .welcome-2 { grid-template-rows: minmax(0, 26dvh) minmax(0, 1fr) auto; }
+  .welcome-2-plate img { height: 26dvh; }
+  .roadmap { grid-template-columns: repeat(2, 1fr); gap: var(--space-4) var(--space-8); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---------------- Tambahan T3: cetak halaman hasil ----------------
+   Ditujukan untuk dosen penguji yang ingin arsip fisik. Semua kendali
+   antarmuka disembunyikan; yang tersisa hanya isi yang bermakna
+   sebagai bukti belajar. Halaman hasil dipilih karena paling lengkap
+   di platform ini: skor, daftar 10 langkah, daftar jawaban kuis, dan
+   ringkasan pembelajaran. */
+@media print {
+  .nav, .hint-host, .dev-panel, .dev-tooltip, .swipe-zone, .float-back,
+  .transition, .blackout, .gate, .coach-overlay, .dialog-wrap,
+  .btn, .result-btn { display: none !important; }
+
+  html, body { background: #fff; color: #000; }
+  .stage { max-width: none; padding: 0; }
+  .step-item, .answer-item, .recap li { break-inside: avoid; }
+  a[href]::after { content: ""; }
+}
+
+@media print {
+  #resultPage::before {
+    content: "NarrativeLearn · Muara Jati — " attr(data-student);
+    display: block;
+    margin-bottom: 12px;
+    padding-bottom: 6px;
+    font-size: 12pt;
+    border-bottom: 1px solid #000;
+  }
+}
+
+/* ============================================================
+   ⚠️ MODE PENGEMBANG — HAPUS BLOK INI SEBELUM LAUNCHING
+   Warna sengaja tidak senada dengan token di atas supaya jelas
+   ini alat sementara, bukan bagian produk akhir — hanya bentuk
+   sudutnya (--radius-md/--radius-sm) yang dipinjam dari token
+   utama, sekadar supaya wadah persegi panjangnya terasa seperti
+   "buatan aplikasi ini", bukan kotak asing.
+   ============================================================ */
+.dev-panel {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: 1000;
+  padding: 4px;
+  border-radius: var(--radius-md);
+  background: #24231f;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35);
+  cursor: grab;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.dev-panel.is-dragging { cursor: grabbing; }
+.dev-panel-inner { display: flex; align-items: stretch; gap: 4px; }
+.dev-divider { width: 1px; align-self: stretch; background: rgba(255, 255, 255, 0.18); }
+.dev-btn {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: #3f6b34;
+  color: #fff;
+  cursor: pointer;
+}
+.dev-btn svg { width: 20px; height: 20px; }
+.dev-btn.is-empty { background: #888; }
+.dev-btn.is-off { background: #888; }
+.dev-tooltip {
+  position: fixed;
+  z-index: 1001;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease;
+  padding: 4px 10px;
+  border-radius: var(--radius-md);
+  background: #3f6b34;
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: 12px;
+  white-space: nowrap;
+}
+.dev-tooltip.is-visible { opacity: 1; }
+.dev-panel.is-dragging ~ .dev-tooltip { opacity: 0; }
+@media (min-width: 768px) {
+  .dev-panel { top: auto; left: auto; bottom: 16px; left: 16px; }
+}
+/* ====================== AKHIR MODE PENGEMBANG ====================== */

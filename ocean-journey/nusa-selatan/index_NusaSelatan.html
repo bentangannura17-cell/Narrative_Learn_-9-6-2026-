@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Nusa Selatan · Ocean Journey — NarrativeLearn</title>
+<link rel="stylesheet" href="style_NusaSelatan.css">
+</head>
+<body>
+
+<!-- ============================================================
+     PETA HALAMAN  (revisi: satu layar = satu tugas)
+       #lockedPage              gerbang prasyarat (Nusa Timur)
+       #welcome1 / #welcome2    sambutan (tap untuk lanjut)
+       #appShell
+         header#nav             navigator dua tingkat
+         main#stage
+           #waitPage            tunggu guru / nyawa habis
+           #videoPage           materi video
+           #wordPage            Activity 1a — menebak arti kata
+           #wordMeaningPage     Activity 1b — arti + latihan bunyi  (BARU)
+           #pointPage           Activity 2 — What does it point to?
+           #quizPage            Activity 3 — kuis enam soal
+           #resultPage          hasil 1/3 — skor & per aktivitas
+           #resultReviewPage    hasil 2/3 — worth rereading         (BARU)
+           #resultWordsPage     hasil 3/3 — words to keep           (BARU)
+         #askPanel              dialog tanya guru
+         #confirmPanel          dialog konfirmasi keluar            (BARU)
+         #coachBlock/#coachHole/#coachWrap   coach mark bersorot
+
+     Aset lokal yang perlu diisi (nama folder sama dengan modul lain):
+       gambar/welcome-background.png
+       gambar/welcome-banner.jpg
+       gambar/<kata>.jpg          mis. gambar/mangrove.jpg
+       audio/<kata>.mp3           mis. audio/mangrove.mp3
+       video/materi-nusa-selatan.mp4  (+ video/materi-poster.jpg)
+     Selama berkas itu belum ada, siswa hanya melihat kalimat ramah
+     ("Picture coming soon"). Nama berkas teknis hanya muncul saat
+     DEV_MODE === true — lihat atribut data-dev-note di bawah.
+     ============================================================ -->
+
+<div id="lockedPage" class="locked">
+  <div class="locked-card">
+    <span class="eyebrow">Nusa Selatan · Vocabulary</span>
+    <h1 class="locked-title">Not yet unlocked</h1>
+    <hr class="rule">
+    <p class="locked-body">Finish <em>Nusa Timur</em> first. The words on this island come from the story you have already read.</p>
+    <a href="../nusa-timur/index_NusaTimur.html" class="btn btn-primary">Go to Nusa Timur</a>
+    <p class="locked-body" style="margin-top:18px"><a href="../index.html">Back to the map</a></p>
+  </div>
+</div>
+
+<div id="welcome1" class="welcome welcome-1" hidden>
+  <img class="welcome-bg" src="gambar/welcome-background.png" alt="" aria-hidden="true">
+  <div class="welcome-1-inner">
+    <p class="welcome-1-line-1">Hai, welcome to</p>
+    <h1 class="welcome-1-line-2">Narrative<span class="welcome-1-thin">Learn</span></h1>
+    <p class="welcome-1-line-3">Ocean Journey · Nusa Selatan</p>
+  </div>
+  <p class="welcome-tap" aria-hidden="true">tap anywhere to begin</p>
+</div>
+
+<div id="welcome2" class="welcome welcome-2" hidden>
+  <div class="welcome-2-plate plate" aria-hidden="true">
+    <img id="welcome2Image" src="gambar/welcome-banner.jpg" alt="">
+    <span class="plate-empty" data-dev-note="Lesson image — gambar/welcome-banner.jpg">Picture coming soon</span>
+  </div>
+
+  <div class="welcome-2-body">
+    <div id="welcome2Intro" class="welcome-2-intro">
+      <span class="eyebrow">What you will learn</span>
+      <p>New words are hiding on this island, like little shells in the sand. You will read a story, look for clues, and slowly find what each word means.</p>
+      <hr class="rule">
+      <span class="eyebrow">Why it matters</span>
+      <p>Every word you find makes you braver and stronger. Soon, you will read new stories all by yourself, with a big, proud smile.</p>
+    </div>
+
+    <ol id="welcome2Roadmap" class="roadmap" hidden>
+      <li class="roadmap-step">
+        <span class="roadmap-num">01</span>
+        <span class="roadmap-label">Watch &amp; learn</span>
+        <span class="roadmap-hint">A video from your teacher</span>
+      </li>
+      <li class="roadmap-step">
+        <span class="roadmap-num">02</span>
+        <span class="roadmap-label">Guess the meaning</span>
+        <span class="roadmap-hint">Eight words from the story</span>
+      </li>
+      <li class="roadmap-step">
+        <span class="roadmap-num">03</span>
+        <span class="roadmap-label">What does it point to?</span>
+        <span class="roadmap-hint">Six sentences, six clues</span>
+      </li>
+      <li class="roadmap-step">
+        <span class="roadmap-num">04</span>
+        <span class="roadmap-label">Quiz</span>
+        <span class="roadmap-hint">Six sentences to complete</span>
+      </li>
+    </ol>
+  </div>
+
+  <p class="welcome-tap" id="welcome2Tap" aria-hidden="true">tap to see your path</p>
+</div>
+
+<div id="appShell" class="shell" hidden>
+
+  <header id="nav" class="nav" role="navigation" aria-label="Main navigator">
+    <div class="nav-tier nav-tier-1">
+      <span class="nav-brand" id="navBrand">NarrativeLearn</span>
+      <div class="nav-hearts" id="navHearts" role="img" aria-label="Lives remaining"></div>
+      <div class="nav-who">
+        <span class="nav-student" id="navStudent">Student</span>
+        <span class="nav-info" id="navInfo"></span>
+      </div>
+    </div>
+    <div class="nav-tier nav-tier-2">
+      <div class="nav-progress" aria-hidden="true">
+        <span class="nav-progress-fill" id="navProgressFill"></span>
+      </div>
+      <div class="nav-actions">
+        <button type="button" id="navHome" class="nav-btn" aria-label="Home" title="Home">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+        </button>
+        <button type="button" id="navAsk" class="nav-btn" aria-label="Ask a question" title="Ask a question">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.2 9a2.9 2.9 0 0 1 5.6 1c0 2-2.8 2.3-2.8 4"/><path d="M12 17.4h.01"/></svg>
+        </button>
+        <button type="button" id="navCoach" class="nav-btn" aria-label="Show me how this screen works" title="How this works" aria-pressed="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5z"/></svg>
+        </button>
+        <button type="button" id="navBack" class="nav-btn" aria-label="Back" title="Back">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="stage" id="stage">
+
+    <!-- ---------- TUNGGU GURU / NYAWA HABIS ----------
+         #waitResumeBtn hanya tampil kalau siswa MUNDUR ke layar ini,
+         supaya layar tunggu tidak pernah jadi jalan buntu. -->
+    <section id="waitPage" class="page page-wait" hidden>
+      <div class="wait-screen">
+        <span class="eyebrow" id="waitEyebrow">Wait for your teacher</span>
+        <p class="wait-caption" id="waitCaption">Please look at your teacher and wait for further instructions.</p>
+        <span class="wait-dots" aria-hidden="true"><span></span><span></span><span></span></span>
+        <button type="button" id="waitResumeBtn" class="btn btn-on-dark js-next" hidden>Back to where I was</button>
+      </div>
+    </section>
+
+    <!-- ---------- MATERI: video ---------- -->
+    <section id="videoPage" class="page page-video" hidden>
+      <span class="eyebrow">Materials · Video</span>
+      <h1 class="page-title">The words of the coast</h1>
+      <hr class="rule">
+      <figure class="plate video-plate" id="videoPlate">
+        <video id="videoEl" class="video-el" controls playsinline poster="video/materi-poster.jpg">
+          <source src="video/materi-nusa-selatan.mp4" type="video/mp4">
+        </video>
+        <span class="plate-empty" data-dev-note="Video — video/materi-nusa-selatan.mp4">Video coming soon</span>
+      </figure>
+      <p class="page-note">Press play when you are ready. Your teacher will let you continue once it ends.</p>
+      <p class="notice" id="videoFallback" hidden>The video is not ready on this device. That is okay. Tap the button below, then wait for your teacher.</p>
+      <button type="button" id="videoNextBtn" class="btn btn-primary quiz-next js-next" hidden>I have finished the video</button>
+    </section>
+
+    <!-- ---------- ACTIVITY 1a: guess the meaning ----------
+         Hanya menebak. Arti & latihan bunyi pindah ke halaman
+         berikutnya (#wordMeaningPage) — satu layar, satu tugas. -->
+    <section id="wordPage" class="page page-word" hidden>
+      <div class="page-head">
+        <span class="eyebrow" id="wordLabel">Word 1 of 8</span>
+        <div class="dots" id="wordDots" aria-hidden="true"></div>
+      </div>
+      <h1 class="page-title word-title" id="wordTitle"></h1>
+
+      <figure class="plate word-plate is-empty" id="wordPlate">
+        <img id="wordImage" alt="">
+        <span class="plate-empty" id="wordPlateNote">Picture coming soon</span>
+      </figure>
+
+      <blockquote class="quote quote-small" id="wordContext"></blockquote>
+      <hr class="rule">
+      <p class="options-label">Choose the meaning</p>
+      <div class="options" id="wordOptions"></div>
+      <div class="feedback" id="wordFeedback" hidden></div>
+
+      <button type="button" id="wordNextBtn" class="btn btn-primary quiz-next js-next" hidden>See the meaning</button>
+    </section>
+
+    <!-- ---------- ACTIVITY 1b: arti + latihan bunyi (HALAMAN BARU) ---------- -->
+    <section id="wordMeaningPage" class="page page-meaning" hidden>
+      <div class="page-head">
+        <span class="eyebrow" id="meaningLabel">Word 1 of 8</span>
+        <div class="dots" id="meaningDots" aria-hidden="true"></div>
+      </div>
+      <h1 class="page-title word-title" id="meaningTitle"></h1>
+      <hr class="rule">
+
+      <span class="eyebrow">Meaning</span>
+      <p class="reveal-def" id="meaningDef"></p>
+      <p class="reveal-gloss" id="meaningGloss" lang="id"></p>
+
+      <div class="pron">
+        <div class="pron-row">
+          <span class="pron-word" id="pronWord"></span>
+          <span class="pron-speeds" id="pronSpeeds">
+            <button type="button" class="chip-btn" id="pronSlow">Slow</button>
+            <button type="button" class="chip-btn is-on" id="pronNormal">Normal</button>
+          </span>
+        </div>
+        <button type="button" class="btn btn-ghost pron-play" id="pronPlay">Listen &amp; repeat</button>
+        <p class="pron-note" id="pronNote"></p>
+      </div>
+
+      <button type="button" id="meaningNextBtn" class="btn btn-primary quiz-next js-next">Next word</button>
+    </section>
+
+    <!-- ---------- ACTIVITY 2: what does it point to? ---------- -->
+    <section id="pointPage" class="page page-point" hidden>
+      <div class="page-head">
+        <span class="eyebrow" id="pointLabel">Sentence 1 of 6</span>
+        <div class="dots" id="pointDots" aria-hidden="true"></div>
+      </div>
+      <h1 class="page-title" id="pointQuestion"></h1>
+      <blockquote class="quote" id="pointQuote"></blockquote>
+      <hr class="rule">
+      <p class="options-label">Choose what it points to</p>
+      <div class="options" id="pointOptions"></div>
+      <div class="feedback" id="pointFeedback" hidden></div>
+      <button type="button" id="pointNextBtn" class="btn btn-primary quiz-next js-next" hidden>Next sentence</button>
+    </section>
+
+    <!-- ---------- ACTIVITY 3: kuis ---------- -->
+    <section id="quizPage" class="page page-quiz" hidden>
+      <div class="page-head">
+        <span class="eyebrow" id="quizLabel">Question 1 of 6</span>
+        <div class="dots" id="quizDots" aria-hidden="true"></div>
+      </div>
+      <p class="options-label options-label-top">Complete the sentence</p>
+      <h1 class="quiz-question" id="quizSentence"></h1>
+      <hr class="rule">
+      <div class="options" id="quizOptions"></div>
+      <div class="feedback" id="quizFeedback" hidden></div>
+      <button type="button" id="quizNextBtn" class="btn btn-primary quiz-next js-next" hidden>Next question</button>
+    </section>
+
+    <!-- ---------- HASIL 1/3: skor & per aktivitas ---------- -->
+    <section id="resultPage" class="page page-result" hidden>
+      <span class="eyebrow">Nusa Selatan complete · 1 of 3</span>
+      <h1 class="page-title">Twenty steps, summed up</h1>
+      <p class="page-note" id="journeyNote" hidden>You finished Ocean Journey — all three islands. The Lake of Lembayung will open soon.</p>
+      <hr class="rule">
+
+      <dl class="scorecard" id="resultScore"></dl>
+
+      <h2 class="section-title">Activity by activity</h2>
+      <ol class="steplist" id="resultSteps"></ol>
+
+      <button type="button" id="resultNextBtn" class="btn btn-primary quiz-next js-next">See what to read again</button>
+    </section>
+
+    <!-- ---------- HASIL 2/3: worth rereading (HALAMAN BARU) ---------- -->
+    <section id="resultReviewPage" class="page page-result" hidden>
+      <span class="eyebrow">Nusa Selatan complete · 2 of 3</span>
+      <h1 class="page-title">Worth rereading</h1>
+      <hr class="rule">
+      <ol class="answerlist" id="resultAnswers"></ol>
+      <button type="button" id="reviewNextBtn" class="btn btn-primary quiz-next js-next">See the words to keep</button>
+      <button type="button" id="reviewBackBtn" class="btn btn-ghost quiz-next">Back to your score</button>
+    </section>
+
+    <!-- ---------- HASIL 3/3: words to keep (HALAMAN BARU) ---------- -->
+    <section id="resultWordsPage" class="page page-result" hidden>
+      <span class="eyebrow">Nusa Selatan complete · 3 of 3</span>
+      <h1 class="page-title">Words to keep</h1>
+      <hr class="rule">
+      <ul class="tips" id="resultTips"></ul>
+
+      <div class="dialog-actions">
+        <button type="button" id="copyResultBtn" class="btn btn-ghost">Copy result</button>
+        <button type="button" id="copyCodeBtn" class="btn btn-ghost">Copy result code</button>
+      </div>
+      <!-- Revisi R7 butir 5: #wordsBackBtn diletakkan SEBELUM #resultBackBtn.
+           Tombol keluar (primer, menuju peta) selalu paling akhir dan
+           paling sulit ditekan tak sengaja oleh siswa yang sebenarnya
+           ingin mundur. -->
+      <button type="button" id="wordsBackBtn" class="btn btn-ghost quiz-next">Back to what to reread</button>
+      <a href="../index.html" class="btn btn-primary result-btn js-next" id="resultBackBtn">Back to the map</a>
+    </section>
+
+  </main>
+
+  <div id="askPanel" class="dialog-wrap" hidden>
+    <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="askTitle">
+      <span class="eyebrow">To your teacher</span>
+      <h2 class="dialog-title" id="askTitle">Ask a question</h2>
+      <hr class="rule">
+      <label class="field">
+        <span>What would you like to ask?</span>
+        <textarea id="askText" class="input" rows="4" placeholder="I don't understand the word…"></textarea>
+      </label>
+      <p class="dialog-note" id="askNote">Your teacher will see this on their own screen.</p>
+      <div class="dialog-actions">
+        <button type="button" id="askCancel" class="btn btn-ghost">Cancel</button>
+        <button type="button" id="askSend" class="btn btn-primary">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Konfirmasi keluar pelajaran — dipakai #navHome, tombol Back di
+       layar pertama, dan Back di halaman hasil. -->
+  <div id="confirmPanel" class="dialog-wrap" hidden>
+    <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+      <span class="eyebrow">One moment</span>
+      <h2 class="dialog-title" id="confirmTitle">Leave the lesson?</h2>
+      <hr class="rule">
+      <p class="dialog-body" id="confirmBody">Leave the lesson? Your progress on this island will be lost.</p>
+      <div class="dialog-actions">
+        <button type="button" id="confirmCancel" class="btn btn-ghost">Stay here</button>
+        <button type="button" id="confirmOk" class="btn btn-primary">Leave</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Coach mark. Tiga lapis:
+       #coachBlock  menahan sentuhan ke isi halaman (klik = tutup)
+       #coachHole   kotak sorotan; box-shadow 9999px menggelapkan sisanya
+       #coachWrap   kartu penjelasan (wrap tembus sentuhan, kartunya tidak)
+       Navigator sengaja diangkat di atas #coachBlock supaya tombol
+       coach tetap bisa ditekan untuk menutup. -->
+  <div id="coachBlock" class="coach-block" hidden></div>
+  <div id="coachHole" class="coach-hole" hidden></div>
+
+  <div id="coachWrap" class="coach-wrap is-anchored" hidden>
+    <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="coachTitle">
+      <span class="eyebrow" id="coachStep"></span>
+      <h2 class="dialog-title" id="coachTitle">How this works</h2>
+      <hr class="rule">
+      <p class="dialog-body" id="coachText"></p>
+      <div class="dialog-actions">
+        <button type="button" id="coachClose" class="btn btn-ghost">Close</button>
+        <button type="button" id="coachNext" class="btn btn-primary">Continue</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     HINT — instruksi ringkas di pojok kanan atas (Revisi R3).
+     Menggantikan coach mark di welcome-1, welcome-2, layar tunggu,
+     dan halaman video. Hilang sendiri setelah 3 detik, atau langsung
+     saat ditekan. Berbeda peran dari #toast di bawah-tengah, yang
+     dipakai untuk umpan balik atas tindakan yang baru saja terjadi.
+     ============================================================ -->
+<div id="hintHost" class="hint-host" aria-live="polite"></div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<div id="blackout" class="blackout" aria-hidden="true" hidden></div>
+<div id="transitionOverlay" class="transition" aria-hidden="true"></div>
+
+<div class="swipe-zone swipe-zone-left" data-swipe="left" aria-hidden="true"></div>
+<div class="swipe-zone swipe-zone-right" data-swipe="right" aria-hidden="true"></div>
+
+<!-- ============================================================
+     ⚠️ MODE PENGEMBANG — HAPUS BLOK INI SEBELUM LAUNCHING
+     Persegi panjang berisi DUA kotak:
+       kiri  #devAnswer       meloloskan satu langkah
+       kanan #devCoachToggle  menyalakan/mematikan coach mark otomatis
+     ============================================================ -->
+<div id="devPanel" class="dev-panel" hidden>
+  <button type="button" id="devAnswer" class="dev-btn" title="Pass the step currently shown" aria-label="Pass the step currently shown">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+  </button>
+  <span class="dev-divider" aria-hidden="true"></span>
+  <button type="button" id="devCoachToggle" class="dev-btn dev-btn-toggle" aria-pressed="true" title="Coach mark: ON" aria-label="Turn automatic coach marks on or off">
+    <svg id="devCoachOn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3.6" fill="currentColor" stroke="none"/></svg>
+    <svg id="devCoachOff" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true" hidden><circle cx="12" cy="12" r="8"/><path d="M6.6 17.4 17.4 6.6"/></svg>
+  </button>
+</div>
+<div id="devTooltip" class="dev-tooltip" aria-hidden="true"></div>
+<!-- ====================== AKHIR MODE PENGEMBANG ====================== -->
+
+<script src="script_NusaSelatan.js"></script>
+<!-- Kanal ke panel guru (teacher/index.html). Wajib SESUDAH script_NusaSelatan.js:
+     berkas ini membaca TeacherAPI dan Gate yang baru ada setelah script itu jalan. -->
+<script src="../../shared/teacher.js"></script>
+<script>
+  /* Pengecekan mandiri kalau script.js gagal dimuat (404 / salah folder). */
+  window.addEventListener('load', function () {
+    setTimeout(function () {
+      if (typeof DEV_MODE === 'undefined') {
+        var card = document.querySelector('.locked-card');
+        if (card && !document.getElementById('jsLoadError')) {
+          var msg = document.createElement('p');
+          msg.id = 'jsLoadError';
+          msg.className = 'locked-body';
+          msg.style.cssText = 'margin-top:18px;padding:12px;border:1px solid #97402f;border-radius:4px;color:#97402f;';
+          msg.textContent = 'script_NusaSelatan.js gagal dimuat (404 atau salah lokasi). Pastikan nama filenya persis "script_NusaSelatan.js" dan sejajar dengan index_NusaSelatan.html ini.';
+          card.appendChild(msg);
+        }
+        document.getElementById('lockedPage').hidden = false;
+      }
+    }, 400);
+  });
+</script>
+</body>
+</html>
